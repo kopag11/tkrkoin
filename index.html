@@ -11,64 +11,51 @@
   
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
     
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    
-    body { 
-        background: #f0f2f5; 
-        font-family: 'Poppins', sans-serif; 
-        margin: 0; padding: 0; 
-        display: flex; justify-content: center; 
-        min-height: 100vh;
-    }
-    
-    .app-card { 
-        background: white; 
-        width: 100%; 
-        max-width: 500px; 
-        min-height: 100vh; 
-        box-shadow: 0 0 20px rgba(0,0,0,0.05); 
-        position: relative; 
-        display: flex; flex-direction: column;
-    }
-    
+    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
     .hidden { display: none !important; }
 
+    
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
     
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
 
+    
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; }
 
+    
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
     .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
     .dash-val-md { font-size: 20px; font-weight: 600; color: #334155; }
-    
     .progress-stacked { height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden; margin-top: 10px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #667eea); width: 0%; transition: width 0.8s ease-in-out; }
-
     .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
     .rincian-table tr { background: #f8fafc; }
     .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
+    
     .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; }
-
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 12px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 1000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: color 0.3s; }
     .nav-item i { font-size: 22px; }
     .nav-item.active { color: var(--primary); }
+    .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
   </style>
 </head>
 <body>
@@ -82,12 +69,8 @@
         <p class="text-muted">Sistem Operasional Digital</p>
       </div>
       <div>
-        <div class="mb-3">
-          <input type="tel" id="loginNik" class="input-modern" placeholder="NIK (Angka)" maxlength="10" inputmode="numeric">
-        </div>
-        <div class="mb-4">
-          <input type="password" id="loginPass" class="input-modern" placeholder="Password (Angka)" maxlength="6" inputmode="numeric" pattern="[0-9]*">
-        </div>
+        <div class="mb-3"><input type="tel" id="loginNik" class="input-modern" placeholder="NIK (Angka)" maxlength="10" inputmode="numeric"></div>
+        <div class="mb-4"><input type="password" id="loginPass" class="input-modern" placeholder="Password (Angka)" maxlength="6" inputmode="numeric" pattern="[0-9]*"></div>
         <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow-lg" onclick="doLogin(this)">MASUK APLIKASI</button>
       </div>
     </div>
@@ -121,54 +104,78 @@
                <div class="col-12"><textarea class="input-modern input-readonly" id="alamatToko" placeholder="Alamat" rows="2" readonly></textarea></div>
             </div>
 
-            <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA JABATAN</span>
-            <div class="row g-2 mb-4">
-                <div class="col-6">
-                    <select class="input-modern form-select" id="jabatan">
-                        <option value="CIF">CIF</option>
-                        <option value="SSL">SSL</option>
-                        <option value="SJL">SJL</option>
-                        <option value="SCG">SCG</option>
-                        <option value="SCB">SCB</option>
-                    </select>
+            <div id="transactionArea" class="hidden">
+                <div class="alert alert-info text-center py-2 mb-3 fw-bold" id="statusLabel">Sedang Transaksi</div>
+
+                <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA PENYETOR</span>
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <select class="input-modern form-select" id="jabatan">
+                            <option value="CIF">CIF</option>
+                            <option value="SSL">SSL</option>
+                            <option value="SJL">SJL</option>
+                            <option value="SCG">SCG</option>
+                            <option value="SCB">SCB</option>
+                        </select>
+                    </div>
+                    <div class="col-6"><input type="text" class="input-modern" id="namaTim" placeholder="Nama Tim"></div>
                 </div>
-                <div class="col-6"><input type="text" class="input-modern" id="namaTim" placeholder="Nama Tim"></div>
-                <div class="col-12">
-                    <div class="input-group">
-                        <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
-                        <input type="tel" class="input-modern" id="noWa" placeholder="Nomor WA (08xxx)" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+
+                <div id="yesSection">
+                    <div class="col-12 mb-4">
+                        <span class="d-block small fw-bold text-muted mb-1">Nomor WA (Penerima Link)</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
+                            <input type="tel" class="input-modern" id="noWa" placeholder="08xxx" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
+                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> TEMPLATE PAKET (ISI CEPAT)</span>
+                        <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
+                            <option value="">-- Manual / Kosongkan --</option>
+                            <option value="paket1">Paket A (Rp 500.000)</option>
+                            <option value="paket2">Paket B (Rp 1.000.000)</option>
+                            <option value="paket3">Paket C (Rp 2.000.000)</option>
+                        </select>
+                    </div>
+
+                    <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
+                    <div id="denomContainer" class="mb-4"></div>
+
+                    <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
+                        <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
+                        <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
+                    </div>
+
+                    <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
+                    <canvas id="signature-pad" class="mb-2"></canvas>
+                    <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
+                </div>
+
+                <div id="noSection" class="hidden">
+                    <div class="mb-3">
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
+                        <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
                     </div>
                 </div>
+
+                <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)" style="font-size: 16px;">
+                    <i class="fas fa-paper-plane me-2"></i> PROSES TRANSAKSI
+                </button>
             </div>
 
-            <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
-            <div id="denomContainer" class="mb-4"></div>
-
-            <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
-                <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
-                <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
-            </div>
-
-            <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
-            <canvas id="signature-pad" class="mb-2"></canvas>
-            <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
-            
-            <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg" onclick="process(this)" style="font-size: 16px;">
-                <i class="fas fa-paper-plane me-2"></i> SIMPAN & KIRIM LINK
-            </button>
-            
           </div>
         </div>
 
         <div id="dashPage" class="page-scroll hidden">
             <div class="p-4">
-                
                 <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
                     <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
                     <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <div class="dash-val-lg text-white" style="font-size: 32px;" id="dModal">Rp 0</div>
-                        </div>
+                    </div>
                 </div>
 
                 <div class="dash-section">
@@ -182,15 +189,11 @@
                             <div class="dash-val-md text-danger" id="dSisa">Rp 0</div>
                         </div>
                     </div>
-                    
                     <div class="mb-2 d-flex justify-content-between align-items-end">
                         <span class="dash-label m-0">PROGRESS</span>
                         <span class="dash-label m-0 fw-bold text-primary fs-5" id="dPersen">0%</span>
                     </div>
-                    <div class="progress-stacked">
-                        <div class="progress-bar-fill" id="dBar"></div>
-                    </div>
-                    
+                    <div class="progress-stacked"><div class="progress-bar-fill" id="dBar"></div></div>
                     <div class="mt-4 pt-3 border-top d-flex justify-content-between">
                         <span class="dash-label text-dark">TOTAL TOKO TERLAYANI</span>
                         <span class="fw-bold text-dark fs-5" id="dToko">0</span>
@@ -198,19 +201,12 @@
                 </div>
 
                 <div class="dash-section p-0 overflow-hidden">
-                    <div class="p-3 border-bottom bg-light">
-                        <div class="dash-label m-0">RINCIAN SISA STOK (DENOM)</div>
-                    </div>
-                    <div class="p-3">
-                        <table class="rincian-table" id="tableRincian">
-                            </table>
-                    </div>
+                    <div class="p-3 border-bottom bg-light"><div class="dash-label m-0">RINCIAN SISA STOK (DENOM)</div></div>
+                    <div class="p-3"><table class="rincian-table" id="tableRincian"></table></div>
                 </div>
 
                 <div class="text-center mt-3 mb-5">
-                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="loadDashboard()">
-                        <i class="fas fa-sync-alt me-1"></i> Refresh Data
-                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh Data</button>
                 </div>
             </div>
         </div>
@@ -218,23 +214,50 @@
     </div>
 
     <div id="bottomNav" class="bottom-nav hidden">
-        <button class="nav-item active" id="navHome" onclick="switchPage('home')">
-            <i class="fas fa-edit"></i> Input
-        </button>
-        <button class="nav-item" id="navDash" onclick="switchPage('dash')">
-            <i class="fas fa-chart-pie"></i> Dashboard
-        </button>
+        <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
+        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
     </div>
 
   </div>
 
+  <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-body text-center p-4">
+          <i class="fas fa-question-circle text-primary mb-3" style="font-size: 50px;"></i>
+          <h5 class="fw-bold mb-2">Konfirmasi Penukaran</h5>
+          <p class="text-muted">Apakah Toko ini melakukan penukaran koin?</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary py-2 fw-bold" onclick="setMode(true)">YA, Lakukan Penukaran</button>
+            <button class="btn btn-outline-danger py-2 fw-bold" onclick="setMode(false)">TIDAK (Hanya Laporan)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    //SEPTA GANTENG
+    
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
+    let isTukarMode = true; 
 
+    
+    // Format: Key: { Denom: JumlahKeping }
+    const templates = {
+        "mix1": { 100:0, 200:0, 500:200, 1000:200, 2000:50, 5000:20, 10000:0, 20000:0 }, 
+        "mix2": { 100:0, 200:0, 500:200, 1000:400, 2000:100, 5000:40, 10000:10, 20000:0 }, 
+        "mix3": { 100:0, 200:0, 500:400, 1000:500, 2000:150, 5000:100, 10000:50, 20000:0 } 
+    };
+
+    function showMsg(icon, title, text) {
+        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke' });
+    }
+
+    
     window.onload = () => {
         const sess = localStorage.getItem('session');
         if(sess) {
@@ -262,6 +285,29 @@
         document.getElementById('kendaraan').value = user.nopol;
         document.getElementById('badgeKendaraan').innerText = user.nopol;
         resizeCanvas();
+    }
+
+    
+    function applyTemplate() {
+        const key = document.getElementById('templateSelect').value;
+        const inputs = document.querySelectorAll('.d-input');
+        
+        if (!key) {
+            
+            inputs.forEach(el => {
+                el.value = "";
+                el.dispatchEvent(new Event('input')); 
+            });
+            return;
+        }
+
+        const data = templates[key];
+        inputs.forEach(el => {
+            const denom = parseInt(el.getAttribute('data-v'));
+            const qty = data[denom] !== undefined ? data[denom] : 0;
+            el.value = qty > 0 ? qty : ""; // Isi qty jika ada, kosong jika 0
+            el.dispatchEvent(new Event('input'));
+        });
     }
 
     function switchPage(page) {
@@ -321,11 +367,16 @@
         if (res.status === 'success') {
             localStorage.setItem('session', JSON.stringify(res));
             showMainApp(res);
-        } else { alert("Login Gagal!"); }
-      } catch (e) { alert("Error: " + e); }
+        } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); }
+      } catch (e) { showMsg('error','Error','Masalah Koneksi'); }
       btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false;
     }
-    function logout() { localStorage.removeItem('session'); location.reload(); }
+    function logout() { 
+        Swal.fire({
+            title: 'Keluar?', text: "Anda harus login ulang nanti.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya, Keluar'
+        }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } });
+    }
     
     async function cariToko(btn) {
       const kode = document.getElementById('kodeToko').value.toUpperCase();
@@ -336,12 +387,41 @@
         if(res.found) { 
             document.getElementById('namaToko').value = res.nama; 
             document.getElementById('alamatToko').value = res.alamat;
-        } else { alert("Toko tidak ditemukan!"); }
-      } catch(e) {}
+            
+            const myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            myModal.show();
+        } else { showMsg('warning','Info','Toko tidak ditemukan!'); }
+      } catch(e) { showMsg('error','Error', 'Koneksi error'); }
       btn.innerHTML = '<i class="fas fa-search"></i>';
     }
 
+    
+    function setMode(isYes) {
+        isTukarMode = isYes;
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        document.getElementById('transactionArea').classList.remove('hidden');
+        
+        if (isYes) {
+            
+            document.getElementById('yesSection').classList.remove('hidden');
+            document.getElementById('noSection').classList.add('hidden');
+            document.getElementById('statusLabel').className = "alert alert-success text-center py-2 mb-3 fw-bold";
+            document.getElementById('statusLabel').innerText = "MODE: PENUKARAN UANG";
+            document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-paper-plane me-2"></i> SIMPAN & KIRIM LINK WA';
+            document.getElementById('btnSubmit').className = "btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg";
+        } else {
+            
+            document.getElementById('yesSection').classList.add('hidden');
+            document.getElementById('noSection').classList.remove('hidden');
+            document.getElementById('statusLabel').className = "alert alert-danger text-center py-2 mb-3 fw-bold";
+            document.getElementById('statusLabel').innerText = "MODE: LAPORAN (TIDAK TUKAR)";
+            document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-save me-2"></i> SIMPAN KETERANGAN';
+            document.getElementById('btnSubmit').className = "btn btn-danger w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg";
+        }
+    }
+
     document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
+    
     document.addEventListener('input', function(e) {
         if(e.target.classList.contains('d-input')) {
             let val = (e.target.value||0)*e.target.getAttribute('data-v');
@@ -352,115 +432,130 @@
     });
 
     async function process(btn) {
-      if(signaturePad.isEmpty()) return alert("Tanda Tangan Kosong!");
-      if(!document.getElementById('namaToko').value) return alert("Pilih Toko!");
-      let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
-      if(!noWa) return alert("Isi Nomor WA!");
-      if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+      if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
+      
+      // SEPTA GANTENG
+      if (isTukarMode) {
+          if(signaturePad.isEmpty()) return showMsg('warning','TTD Kosong','Tanda tangan wajib diisi!');
+          if(!document.getElementById('noWa').value) return showMsg('warning','WA Kosong','Isi Nomor WA!');
+      } else {
+          if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
+      }
 
-      btn.innerHTML = 'Proses...'; btn.disabled = true;
+      btn.innerHTML = 'Memproses...'; btn.disabled = true;
 
       const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
+      
       let dataSave = {
+        isTukar: isTukarMode, 
         kodeToko: kodeToko,
-        totalUang: document.getElementById('totalDisplay').innerText,
+        totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
+        keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
         k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0
       };
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a6', compress: true });
+      let pdfBase64 = "";
+      let filename = "";
+
       
-      doc.setFont("helvetica", "bold"); doc.setFontSize(14);
-      doc.text("INDOMARET", 52.5, 10, {align: 'center'});
-      doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
-      doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
+      if (isTukarMode) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a6', compress: true });
+          
+          doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+          doc.text("INDOMARET", 52.5, 10, {align: 'center'});
+          doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
+          doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
 
-      doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-      let y = 25; const lh = 4.5;
-      const addRow = (label, val) => {
-          doc.setFont("helvetica", "bold"); doc.text(label, 5, y);
-          doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y);
-          y += lh;
-      };
+          doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+          let y = 25; const lh = 4.5;
+          const addRow = (label, val) => {
+              doc.setFont("helvetica", "bold"); doc.text(label, 5, y);
+              doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y);
+              y += lh;
+          };
 
-      const now = new Date();
-      const options = { day: '2-digit', month: 'long', year: 'numeric' };
-      const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
+          const now = new Date();
+          const options = { day: '2-digit', month: 'long', year: 'numeric' };
+          const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
+          
+          addRow("Tanggal", formattedDate);
+          addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
+          const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
+          doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y);
+          y += (alamatLines.length * 4);
+          addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
+          addRow("No WA", document.getElementById('noWa').value);
+          addRow("Petugas", document.getElementById('petugasNama').value);
+          addRow("Kendaraan", document.getElementById('kendaraan').value);
+          y += 2; doc.line(5, y, 100, y); y += 5;
+
+          doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
+          doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
+
+          document.querySelectorAll('.d-input').forEach(el => {
+            let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+            if(qty > 0) {
+                doc.text(d.toLocaleString(), 7, y);
+                doc.text(qty.toString(), 40, y, {align: 'center'});
+                doc.text((d*qty).toLocaleString(), 98, y, {align:'right'});
+                y += 4;
+                if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
+                if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
+                if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
+                if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
+            }
+          });
+          y += 2; doc.line(5, y, 100, y); y += 6;
+          doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+          doc.text("TOTAL: Rp " + parseInt(dataSave.totalUang).toLocaleString('id-ID'), 52.5, y, {align:'center'});
+
+          y += 10; doc.setFontSize(8);
+          doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
+          const sigImg = signaturePad.toDataURL('image/png');
+          doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
+          y += 20;
+          doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'});
+          doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+
+          const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
+          filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
+          pdfBase64 = doc.output('datauristring');
+      }
+
       
-      addRow("Tanggal", formattedDate);
-      addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
-      const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
-      doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y);
-      doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y);
-      y += (alamatLines.length * 4);
-      addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
-      addRow("No WA", noWa);
-      addRow("Petugas", document.getElementById('petugasNama').value);
-	  addRow("Kendaraan", document.getElementById('kendaraan').value);
-      y += 2; doc.line(5, y, 100, y); y += 5;
-
-      doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
-      doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
-
-      document.querySelectorAll('.d-input').forEach(el => {
-        let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
-        if(qty > 0) {
-            doc.text(d.toLocaleString(), 7, y);
-            doc.text(qty.toString(), 40, y, {align: 'center'});
-            doc.text((d*qty).toLocaleString(), 98, y, {align:'right'});
-            y += 4;
-            if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
-            if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
-            if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
-            if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
-        }
-      });
-      y += 2; doc.line(5, y, 100, y); y += 6;
-      doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-      doc.text("TOTAL: Rp " + dataSave.totalUang, 52.5, y, {align:'center'});
-
-      y += 10; doc.setFontSize(8);
-      doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
-      const sigImg = signaturePad.toDataURL('image/png');
-      doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
-      y += 20;
-      doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'});
-      doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
-
-      const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
-      const filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
-      const pdfBase64 = doc.output('datauristring');
-
       try {
           const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
           if(res.status === 'success') {
-              const link = res.fileUrl;
-              const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${dataSave.totalUang}\n\nDownload PDF:\n${link}`;
-              
-              const waUrl = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
-              
-              
-              btn.classList.remove('btn-primary', 'btn-success');
-              btn.classList.add('btn-warning'); 
-              btn.innerHTML = '<i class="fas fa-check-circle"></i> SUKSES! MEMBUKA WA...';
-
-              
-              window.location.href = waUrl;
-
-              
-              setTimeout(function() {
-                  location.reload();
-              }, 2500); 
-
+              if (isTukarMode) {
+                  
+                  let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
+                  if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+                  const msg = `Struk Penukaran Toko ${kodeToko}\nTotal: Rp ${dataSave.totalUang}\n\nDownload PDF:\n${res.fileUrl}`;
+                  
+                  btn.classList.remove('btn-success'); btn.classList.add('btn-warning'); 
+                  btn.innerHTML = '<i class="fas fa-check-circle"></i> SUKSES! MEMBUKA WA...';
+                  
+                  
+                  window.location.href = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
+                  
+                  setTimeout(function() { location.reload(); }, 2500); 
+              } else {
+                  
+                  Swal.fire({
+                      icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.',
+                      confirmButtonColor: '#4f46e5'
+                  }).then(() => { location.reload(); });
+              }
           } else { 
-              alert("Gagal simpan: " + res.message); 
+              showMsg('error', 'Gagal Simpan', res.message); 
               btn.disabled = false; 
-              btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> SIMPAN & KIRIM LINK'; 
+              btn.innerHTML = 'ULANGI'; 
           }
       } catch(e) { 
-          alert("Error Network: " + e); 
+          showMsg('error', 'Jaringan Error', 'Koneksi bermasalah'); 
           btn.disabled = false; 
-          btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i> SIMPAN & KIRIM LINK'; 
+          btn.innerHTML = 'ULANGI'; 
       }
     }
 
