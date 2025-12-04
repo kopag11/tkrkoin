@@ -14,6 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
+    /* CSS GLOBAL */
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
     .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
@@ -111,9 +112,9 @@
                     </div>
 
                     <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
-                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT</span>
+                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT (DARI SHEET)</span>
                         <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
-                            <option value="">Loading Templates...</option>
+                            <option value="">-- Manual / Kosongkan --</option>
                         </select>
                     </div>
 
@@ -201,7 +202,7 @@
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
     let isTukarMode = true; 
-    let templatesData = []; // Array Global untuk Simpan Data Template
+    let templatesData = []; // Menyimpan data dari sheet
 
     function showMsg(icon, title, text) {
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
@@ -225,8 +226,7 @@
             </div>`;
         });
 
-        
-        loadTemplates();
+        loadTemplatesFromSheet(); // Load Template
     };
 
     function showMainApp(user) {
@@ -240,48 +240,57 @@
         resizeCanvas();
     }
 
-    async function callAPI(action, data) {
-      const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, ...data }) });
-      return await response.json();
+    
+    function hitungTotal() {
+        let t = 0; 
+        document.querySelectorAll('.d-input').forEach(el => {
+            let val = parseFloat(el.value) || 0;
+            let denom = parseFloat(el.getAttribute('data-v'));
+            el.parentElement.querySelector('.subtotal').innerText = (val * denom).toLocaleString('id-ID');
+            t += (val * denom);
+        });
+        document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
     }
 
     
-    async function loadTemplates() {
+    document.addEventListener('input', function(e) {
+        if(e.target.classList.contains('d-input')) { hitungTotal(); }
+    });
+
+    
+    async function loadTemplatesFromSheet() {
         const select = document.getElementById('templateSelect');
-        select.innerHTML = '<option value="">-- Loading... --</option>';
+        select.innerHTML = '<option value="">Loading...</option>';
         try {
-            const res = await callAPI('getTemplates');
+            const res = await callAPI('getTemplates'); 
             if(res.status === 'success' && res.data.length > 0) {
-                templatesData = res.data;
-                select.innerHTML = '<option value="">-- Manual / Kosongkan --</option>';
+                templatesData = res.data; 
+                select.innerHTML = '<option value="">-- Pilih Paket (Dari Sheet) --</option>';
                 res.data.forEach((row, index) => {
                     select.innerHTML += `<option value="${index}">${row[0]}</option>`;
                 });
-            } else {
-                select.innerHTML = '<option value="">-- Tidak ada template di Sheet --</option>';
-            }
-        } catch(e) { console.log(e); select.innerHTML = '<option value="">Error Load</option>'; }
+            } else { select.innerHTML = '<option value="">Kosong</option>'; }
+        } catch(e) { console.log(e); select.innerHTML = '<option value="">Gagal Load</option>'; }
     }
 
+    
     function applyTemplate() {
         const idx = document.getElementById('templateSelect').value;
         const inputs = document.querySelectorAll('.d-input');
         
         if (idx === "") {
-            inputs.forEach(el => { el.value = ""; el.dispatchEvent(new Event('input')); });
-            return;
+            inputs.forEach(el => el.value = "");
+        } else {
+            const selectedRow = templatesData[parseInt(idx)];
+            inputs.forEach((el, i) => {
+                const qty = selectedRow[i+1]; 
+                el.value = qty > 0 ? qty : ""; 
+            });
         }
-
-        const selectedData = templatesData[parseInt(idx)];
-        // row[0]=Nama, row[1]=100, row[2]=200, dst...
-        inputs.forEach((el, i) => {
-            const qty = selectedData[i+1]; 
-            el.value = qty > 0 ? qty : ""; 
-            el.dispatchEvent(new Event('input'));
-        });
+        
+        hitungTotal();
     }
 
-    
     function switchPage(page) {
         if(page === 'home') {
             document.getElementById('formPage').classList.remove('hidden');
@@ -297,6 +306,11 @@
             document.getElementById('pageTitle').innerText = "Dashboard Harian";
             loadDashboard();
         }
+    }
+
+    async function callAPI(action, data) {
+      const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, ...data }) });
+      return await response.json();
     }
 
     async function loadDashboard() {
@@ -335,7 +349,7 @@
       btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false;
     }
     function logout() { 
-        Swal.fire({ title: 'Keluar?', text: "Login ulang diperlukan nanti.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } });
+        Swal.fire({ title: 'Keluar?', text: "Anda harus login ulang nanti.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } });
     }
     
     async function cariToko(btn) {
@@ -376,14 +390,6 @@
     }
 
     document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
-    document.addEventListener('input', function(e) {
-        if(e.target.classList.contains('d-input')) {
-            let val = (e.target.value||0)*e.target.getAttribute('data-v');
-            e.target.parentElement.querySelector('.subtotal').innerText = val.toLocaleString('id-ID');
-            let t = 0; document.querySelectorAll('.d-input').forEach(el => t += (el.value||0)*el.getAttribute('data-v'));
-            document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
-        }
-    });
 
     async function process(btn) {
       if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
