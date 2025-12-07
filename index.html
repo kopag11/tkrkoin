@@ -322,7 +322,7 @@
                        L.marker(point, {icon: numIcon}).addTo(map).bindPopup(popupContent);
                     }
                 });
-                pathCoords.push(office); // Back to office
+                pathCoords.push(office); 
 
                 
                 // const polyline = L.polyline(pathCoords, { color: '#3b82f6', weight: 4, opacity: 0.8, dashArray: '10, 10', lineJoin: 'round' }).addTo(map);
@@ -453,7 +453,7 @@
 
         stores.forEach((toko, i) => {
             
-            let travelTime = Math.ceil(toko.distanceFromPrev / 30 * 60); 
+            let travelTime = Math.ceil(toko.distanceFromPrev / 28 * 60); 
             if(travelTime < 1) travelTime = 1;
             
             
@@ -478,7 +478,7 @@
         });
 
         
-        let returnTime = Math.ceil(data.returnDist / 30 * 60);
+        let returnTime = Math.ceil(data.returnDist / 28 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
 
