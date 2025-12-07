@@ -70,8 +70,7 @@
     .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     
     .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .timeline-line { position: absolute; left: 35px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0; }
-
+    
     
     .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
@@ -250,7 +249,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
     
-    const SERVICE_TIME = 2; 
+    const SERVICE_TIME = 1; 
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
@@ -286,6 +285,58 @@
         document.getElementById('kendaraan').value = user.nopol;
         document.getElementById('badgeKendaraan').innerText = user.nopol;
         resizeCanvas();
+    }
+
+    
+    async function initMap() {
+        if(map) { setTimeout(() => { map.invalidateSize(); }, 300); return; }
+        document.getElementById('mapTargetName').innerText = "Mengambil Data Lokasi...";
+        document.getElementById('mapTargetInfo').innerText = "Mohon tunggu...";
+        
+        try {
+            const res = await callAPI('getMaps');
+            if(res.status === 'success') {
+                const office = res.office.split(',').map(Number);
+                const stores = res.stores;
+                document.getElementById('mapTargetName').innerText = `Rute Harian (${stores.length} Toko)`;
+                document.getElementById('mapTargetInfo').innerText = "Urutan: Kantor -> Toko 1... -> Kantor";
+
+                map = L.map('mapArea').setView(office, 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+                let pathCoords = [];
+                // Marker Kantor
+                const officeIcon = L.divIcon({ className: 'custom-div-icon', html: "<div style='background:blue; width:14px; height:14px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px black;'></div>", iconSize: [14,14] });
+                L.marker(office, {icon: officeIcon}).addTo(map).bindPopup("<b>KANTOR (Start/End)</b>").openPopup();
+                pathCoords.push(office);
+
+                
+                stores.forEach((toko, index) => {
+                    if (toko.lat && toko.long) {
+                       const point = [toko.lat, toko.long];
+                       pathCoords.push(point);
+                       const numIcon = L.divIcon({ className: 'custom-div-icon', html: `<div style='background:#ef4444; color:white; width:24px; height:24px; border-radius:50%; text-align:center; font-size:12px; font-weight:bold; line-height:22px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);'>${index + 1}</div>`, iconSize: [24, 24] });
+                       
+                       const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}`;
+                       const popupContent = `<b>${index+1}. ${toko.kode}</b><br>${toko.nama}<br><a href="${gmapsLink}" target="_blank" style="display:inline-block; margin-top:5px; text-decoration:none; color:#2563eb; font-weight:bold; background:#eff6ff; padding:5px 10px; border-radius:5px;">Navigasi ke sini ➜</a>`;
+                       L.marker(point, {icon: numIcon}).addTo(map).bindPopup(popupContent);
+                    }
+                });
+                pathCoords.push(office); // Back to office
+
+                
+                // const polyline = L.polyline(pathCoords, { color: '#3b82f6', weight: 4, opacity: 0.8, dashArray: '10, 10', lineJoin: 'round' }).addTo(map);
+                // map.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+                
+                
+                var bounds = new L.LatLngBounds(pathCoords);
+                map.fitBounds(bounds, {padding: [50, 50]});
+
+            } else {
+                document.getElementById('mapTargetName').innerText = "Gagal Memuat";
+                document.getElementById('mapTargetInfo').innerText = res.message;
+            }
+        } catch(e) { console.log(e); document.getElementById('mapTargetName').innerText = "Error Jaringan"; }
     }
 
     
@@ -346,7 +397,7 @@
                     }
 
                     if (nearest) {
-                        
+                        // HITUNG JARAK REALISTIS (Garis Lurus * 1.4)
                         let realDist = minDist * 1.4;
                         nearest.distanceFromPrev = realDist.toFixed(1); 
                         
@@ -368,6 +419,14 @@
                     routeData = {office: office, stores: [], returnDist: 0};
                 }
 
+                
+                map = L.map('mapArea').setView(office, 13);
+                let pathCoords = [office];
+                sortedStores.forEach(t => pathCoords.push([t.lat, t.long]));
+                pathCoords.push(office);
+                var bounds = new L.LatLngBounds(pathCoords);
+                map.fitBounds(bounds, {padding: [50, 50]});
+
                 renderRouteList(routeData);
 
             } else {
@@ -386,11 +445,10 @@
         let totalKm = 0;
         let totalMinutes = 0;
 
-        
+       
         html += `<div class="d-flex align-items-center mb-4">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">Start</div>
-            <div class="fw-bold">KANTOR</div>
-            <div class="timeline-line"></div>
+            <div class="fw-bold">KANTOR IDM</div>
         </div>`;
 
         stores.forEach((toko, i) => {
