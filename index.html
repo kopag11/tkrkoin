@@ -453,7 +453,7 @@
 
         stores.forEach((toko, i) => {
             
-            let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); 
+            let travelTime = Math.ceil(toko.distanceFromPrev / 30 * 60); 
             if(travelTime < 1) travelTime = 1;
             
             
@@ -478,7 +478,7 @@
         });
 
         
-        let returnTime = Math.ceil(data.returnDist / 25 * 60);
+        let returnTime = Math.ceil(data.returnDist / 30 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
 
