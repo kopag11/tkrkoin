@@ -9,9 +9,12 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     /* CSS GLOBAL */
@@ -23,11 +26,14 @@
     /* Login */
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
-    /* Input & Form */
+    /* Input */
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
+
+    /* Denom */
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
@@ -43,46 +49,33 @@
     .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
     .rincian-table tr { background: #f8fafc; }
     .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
+    .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
+
+    /* Map Page */
+    #mapArea { height: 100%; width: 100%; z-index: 1; }
+    .map-info-box { position: absolute; top: 10px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 999; }
+    .custom-div-icon { background: transparent; border: none; }
     
-    /* ROUTE LIST STYLE (NEW) */
-    .route-card { 
-        background: #fff; 
-        border-radius: 15px; 
-        padding: 15px; 
-        margin-bottom: 15px; 
-        border-left: 5px solid var(--primary); 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center;
-        transition: transform 0.2s;
-    }
-    .route-card:active { transform: scale(0.98); }
+    /* Route Cards */
+    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
-    .route-info small { color: #64748b; font-size: 11px; display: block; margin-top: 4px; }
     .route-meta { font-size: 11px; color: #059669; background: #ecfdf5; padding: 3px 8px; border-radius: 5px; margin-top: 5px; display: inline-block; font-weight: 600; }
-    .btn-navigate {
-        background: #eff6ff; 
-        color: var(--primary); 
-        width: 45px; height: 45px; 
-        border-radius: 50%; 
-        display: flex; align-items: center; justify-content: center; 
-        font-size: 20px; 
-        text-decoration: none;
-        flex-shrink: 0;
-    }
-    .timeline-line {
-        position: absolute; left: 35px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0;
-    }
+    .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; }
     
-    /* Nav & Scroll */
+    /* SUMMARY BOX */
+    .route-summary { background: #1e293b; color: white; border-radius: 15px; padding: 20px; margin-top: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; }
+    .summary-grid { display: flex; justify-content: space-around; margin-top: 10px; }
+    .summary-item h3 { margin: 0; font-weight: bold; color: #fbbf24; }
+    .summary-item span { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Nav */
     .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
     .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
     .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
   </style>
 </head>
 <body>
@@ -184,6 +177,7 @@
         <div id="dashPage" class="page-scroll hidden">
             <div class="p-4">
                 <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
+                    <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
                     <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <div class="dash-val-lg text-white" style="font-size: 32px;" id="dModal">Rp 0</div>
@@ -220,6 +214,8 @@
             </div>
         </div>
 
+        <div id="mapArea" class="hidden"></div>
+
     </div>
 
     <div id="bottomNav" class="bottom-nav hidden">
@@ -254,7 +250,7 @@
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
     let isTukarMode = true; 
     let templatesData = []; 
-    let routeData = null; // Menyimpan data rute
+    let routeData = null; 
 
     function showMsg(icon, title, text) {
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
@@ -311,7 +307,7 @@
         }
     }
 
-    // --- ROUTE LIST LOGIC (TERDEKAT KE TERJAUH) ---
+    // --- ROUTE LIST LOGIC (DENGAN TOTAL) ---
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; } // Cache
 
@@ -370,23 +366,31 @@
         const stores = data.stores;
         document.getElementById('routeTitle').innerText = `Total: ${stores.length} Toko`;
         let html = '';
+        let totalDist = 0;
+        let totalTime = 0;
 
         // KANTOR START
-        html += `<div class="d-flex align-items-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">Start</div>
-            <div class="fw-bold">KANTOR CASHBOX</div>
-        </div>`;
+        html += `<div class="d-flex align-items-center mb-4" style="position:relative; z-index:2;">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">S</div>
+            <div class="fw-bold">KANTOR CASHBOX (Start)</div>
+        </div>
+        <div style="position:relative;">
+        <div class="timeline-line"></div>`;
 
+        // LIST TOKO
         stores.forEach((toko, i) => {
-            // Estimasi Waktu (Asumsi 30km/jam -> 0.5 km/menit)
-            let timeEst = Math.ceil(toko.distanceFromPrev / 30 * 60); 
+            // Hitung Jarak & Waktu per Leg
+            let d = parseFloat(toko.distanceFromPrev) || 0;
+            totalDist += d;
+            let timeEst = Math.ceil(d / 30 * 60); // Asumsi 30km/jam
             if(timeEst < 1) timeEst = 1;
+            totalTime += timeEst;
 
             html += `
-            <div class="route-card">
+            <div class="route-card" style="position:relative; z-index:2;">
                 <div class="route-info">
                     <h6>${i+1}. ${toko.kode}</h6>
-                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div>
+                    <small>${toko.nama}</small>
                     <div class="route-meta"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km <i class="fas fa-clock ms-2 me-1"></i> ±${timeEst} mnt</div>
                 </div>
                 <a href="https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving" target="_blank" class="btn-navigate">
@@ -395,11 +399,44 @@
             </div>`;
         });
 
+        // HITUNG BALIK KE KANTOR
+        const lastStore = stores[stores.length - 1];
+        let returnDist = 0;
+        let returnTime = 0;
+        if(lastStore && lastStore.lat && lastStore.long) {
+            returnDist = calcDist(lastStore.lat, lastStore.long, data.office[0], data.office[1]);
+            returnTime = Math.ceil(returnDist / 30 * 60);
+            totalDist += returnDist;
+            totalTime += returnTime;
+        }
+
+        html += `</div>`; // End Relative Wrapper
+
         // KANTOR END
-        html += `<div class="d-flex align-items-center mt-3 pt-3 border-top text-muted">
-            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">End</div>
-            <div class="fw-bold">KEMBALI KE KANTOR</div>
+        html += `<div class="d-flex align-items-center mt-2 mb-4" style="position:relative; z-index:2;">
+            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">E</div>
+            <div class="fw-bold">
+                KEMBALI KE KANTOR
+                <div class="text-muted" style="font-size:11px; font-weight:normal;">Jarak Pulang: ${returnDist.toFixed(1)} km</div>
+            </div>
         </div>`;
+
+        // BOX RINGKASAN TOTAL (BAWAH)
+        html += `
+        <div class="route-summary">
+            <h6 class="text-uppercase text-white-50 m-0">ESTIMASI TOTAL PERJALANAN</h6>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <h3>${totalDist.toFixed(1)}</h3>
+                    <span>KM</span>
+                </div>
+                <div class="summary-item">
+                    <h3>${Math.floor(totalTime/60)}j ${totalTime%60}m</h3>
+                    <span>WAKTU</span>
+                </div>
+            </div>
+        </div>
+        `;
 
         document.getElementById('routeContainer').innerHTML = html;
     }
@@ -417,7 +454,7 @@
     }
     function deg2rad(deg) { return deg * (Math.PI/180); }
 
-    // --- OTHER LOGIC (Template, Login, Process) - SAMA ---
+    // --- OTHER LOGIC (SAMA SEPERTI SEBELUMNYA) ---
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
