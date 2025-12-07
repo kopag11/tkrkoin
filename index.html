@@ -11,31 +11,37 @@
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-  
+
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
   <style>
+    /* GLOBAL STYLE */
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
+    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
+    .app-card { background: white; width: 100%; max-width: 500px; height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
     .hidden { display: none !important; }
-    .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
+
+    /* Login */
+    .login-container { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+    /* Inputs */
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
+
+    /* Denom Rows */
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; }
-    
-    
+
+    /* Dashboard UI */
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
     .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
@@ -48,26 +54,45 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
+    /* MAPS PAGE STYLE */
+    #mapsPage { height: calc(100vh - 70px); position: relative; display: flex; flex-direction: column; }
+    #mapArea { height: 40%; width: 100%; flex-shrink: 0; z-index: 1; }
+    #routeDetails { flex: 1; overflow-y: auto; background: #fff; padding: 15px; border-top-left-radius: 20px; border-top-right-radius: 20px; margin-top: -20px; position: relative; z-index: 1000; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); }
     
-    #mapArea { height: 100%; width: 100%; z-index: 1; }
-    .map-info-box { position: absolute; top: 10px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); z-index: 999; }
+    .route-summary { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .route-stat-val { font-weight: bold; font-size: 18px; color: #0284c7; }
+    .route-stat-lbl { font-size: 11px; color: #64748b; text-transform: uppercase; }
 
-    .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
+    .timeline-item { display: flex; gap: 15px; padding-bottom: 20px; position: relative; }
+    .timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 14px; top: 30px; bottom: 0; width: 2px; background: #e2e8f0; }
+    .timeline-icon { width: 30px; height: 30px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #64748b; flex-shrink: 0; z-index: 1; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .timeline-icon.start { background: #22c55e; color: white; }
+    .timeline-icon.shop { background: #3b82f6; color: white; }
+    .timeline-content { flex: 1; background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
+    .timeline-title { font-weight: bold; font-size: 14px; margin-bottom: 2px; color: #334155; }
+    .timeline-info { font-size: 11px; color: #64748b; display: flex; gap: 10px; margin-bottom: 8px; }
+    .btn-nav-small { background: white; border: 1px solid #3b82f6; color: #3b82f6; font-size: 11px; padding: 6px 10px; border-radius: 6px; font-weight: 600; width: 100%; display: block; text-align: center; text-decoration: none; transition: 0.2s; }
+    .btn-nav-small:hover { background: #eff6ff; }
+
+    /* Nav */
+    .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
     .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
+    .leaflet-routing-container { display: none !important; } /* Hide default routing box */
     .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
   </style>
 </head>
 <body>
 
   <div class="app-card">
+    
     <div id="loginPage" class="login-container">
       <div class="text-center pb-4">
         <i class="fas fa-coins coin-logo"></i>
         <h2 class="fw-bold mt-3 mb-1">Tukar Koin</h2>
-        <p class="text-muted">Sistem Operasional Digital</p>
+        <p class="text-muted">Login Petugas Operasional</p>
       </div>
       <div>
         <div class="mb-3"><input type="tel" id="loginNik" class="input-modern" placeholder="NIK (Angka)" maxlength="10" inputmode="numeric"></div>
@@ -76,14 +101,11 @@
       </div>
     </div>
 
-    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
-        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom shadow-sm z-3">
+    <div id="mainApp" class="hidden">
+        
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom shadow-sm z-3" style="height: 60px;">
             <div>
-               <h6 class="m-0 fw-bold text-primary" id="pageTitle" style="font-size: 18px;">Transaksi Baru</h6>
-               <div class="d-flex align-items-center mt-1">
-                   <span class="badge bg-primary rounded-pill me-2" id="badgeNama">-</span>
-                   <small class="text-muted" id="badgeKendaraan"></small>
-               </div>
+               <h6 class="m-0 fw-bold text-primary" id="pageTitle">Transaksi Baru</h6>
                <input type="hidden" id="petugasNama"><input type="hidden" id="kendaraan">
             </div>
             <button class="btn btn-light text-danger rounded-circle" onclick="logout()"><i class="fas fa-power-off"></i></button>
@@ -91,11 +113,13 @@
 
         <div id="formPage" class="page-scroll">
           <div class="p-4">
+            
             <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA TOKO</span>
             <div class="input-group mb-2">
               <input type="text" class="input-modern" id="kodeToko" placeholder="Cari Kode..." style="border-top-right-radius:0; border-bottom-right-radius:0; text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()">
               <button class="btn btn-primary" onclick="cariToko(this)" style="border-top-right-radius:12px; border-bottom-right-radius:12px; padding: 0 20px;"><i class="fas fa-search"></i></button>
             </div>
+            
             <div class="row g-2 mb-4">
                <div class="col-12"><input type="text" class="input-modern input-readonly" id="namaToko" placeholder="Nama Toko" readonly></div>
                <div class="col-12"><textarea class="input-modern input-readonly" id="alamatToko" placeholder="Alamat" rows="2" readonly></textarea></div>
@@ -103,6 +127,7 @@
 
             <div id="transactionArea" class="hidden">
                 <div class="alert alert-info text-center py-2 mb-3 fw-bold" id="statusLabel">Sedang Transaksi</div>
+
                 <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA PENYETOR</span>
                 <div class="row g-2 mb-4">
                     <div class="col-6">
@@ -115,7 +140,7 @@
 
                 <div id="yesSection">
                     <div class="col-12 mb-4">
-                        <span class="d-block small fw-bold text-muted mb-1">Nomor WA</span>
+                        <span class="d-block small fw-bold text-muted mb-1">Nomor WA (Penerima Link)</span>
                         <div class="input-group">
                             <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
                             <input type="tel" class="input-modern" id="noWa" placeholder="08xxx" style="border-top-left-radius:0; border-bottom-left-radius:0;">
@@ -123,7 +148,7 @@
                     </div>
 
                     <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
-                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT</span>
+                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET (DARI SHEET)</span>
                         <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
                             <option value="">Loading Templates...</option>
                         </select>
@@ -131,10 +156,12 @@
 
                     <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
                     <div id="denomContainer" class="mb-4"></div>
+
                     <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
                         <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
                         <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
                     </div>
+
                     <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
                     <canvas id="signature-pad" class="mb-2"></canvas>
                     <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
@@ -142,7 +169,7 @@
 
                 <div id="noSection" class="hidden">
                     <div class="mb-3">
-                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan</span>
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
                         <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
                     </div>
                 </div>
@@ -182,18 +209,39 @@
             </div>
         </div>
 
-        <div id="mapsPage" class="page-scroll hidden">
+        <div id="mapsPage" class="hidden">
             <div id="mapArea"></div>
-            <div class="map-info-box">
-                <h6 class="fw-bold m-0" id="mapTargetName">Memuat Rute...</h6>
-                <small class="text-muted" id="mapTargetInfo">Mengambil data dari spreadsheet...</small>
+            
+            <div id="routeDetails">
+                <div class="text-center text-muted py-5" id="mapLoading">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-2"></i><br>Mengambil Rute Harian...
+                </div>
+                
+                <div id="routeContent" class="hidden">
+                    <div class="route-summary">
+                        <div class="text-center">
+                            <div class="route-stat-val" id="totalDist">- km</div>
+                            <div class="route-stat-lbl">Jarak Total</div>
+                        </div>
+                        <div style="width: 1px; height: 30px; background: #cbd5e1;"></div>
+                        <div class="text-center">
+                            <div class="route-stat-val" id="totalTime">- jam</div>
+                            <div class="route-stat-lbl">Estimasi Waktu</div>
+                        </div>
+                    </div>
+
+                    <h6 class="small fw-bold text-muted mb-3 ps-1">URUTAN PERJALANAN</h6>
+                    <div id="timelineContainer">
+                        </div>
+                </div>
             </div>
         </div>
+
     </div>
 
     <div id="bottomNav" class="bottom-nav hidden">
         <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
-        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dash</button>
         <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-map-marked-alt"></i> Maps</button>
     </div>
   </div>
@@ -216,14 +264,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // SEPTA GANTENG
+    // --- KONFIGURASI URL ---
+    // GANTI URL INI DENGAN URL DEPLOYMENT APPS SCRIPT ANDA YANG BARU
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
+    
+    // --- SETTING TITIK KANTOR (JIKA BELUM DISESUAIKAN DI BACKEND, FRONTEND TETAP BISA PAKA BACKUP) ---
+    const OFFICE_COORDS = "-6.175392,106.827153"; // Monas (Default)
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
     let isTukarMode = true; 
     let templatesData = []; 
     let map = null;
+    let routingControl = null;
 
     function showMsg(icon, title, text) {
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
@@ -236,11 +289,18 @@
             const u = JSON.parse(sess);
             showMainApp(u);
         }
+        
         const container = document.getElementById('denomContainer');
         denoms.forEach(d => {
-            container.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty"><div class="denom-total">Rp <span class="subtotal">0</span></div></div>`;
+            container.innerHTML += `
+            <div class="denom-row">
+                <div class="denom-badge">${d.toLocaleString()}</div>
+                <input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty">
+                <div class="denom-total">Rp <span class="subtotal">0</span></div>
+            </div>`;
         });
-        loadTemplatesFromSheet();
+
+        loadTemplatesFromSheet(); // Load Template dari Backend
     };
 
     function showMainApp(user) {
@@ -248,45 +308,18 @@
         document.getElementById('mainApp').classList.remove('hidden'); 
         document.getElementById('bottomNav').classList.remove('hidden');
         document.getElementById('petugasNama').value = user.nama;
-        document.getElementById('badgeNama').innerText = user.nama;
         document.getElementById('kendaraan').value = user.nopol;
-        document.getElementById('badgeKendaraan').innerText = user.nopol;
         resizeCanvas();
     }
 
-    
-    function switchPage(page) {
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        if(page === 'home') {
-            document.getElementById('formPage').classList.remove('hidden');
-            document.getElementById('dashPage').classList.add('hidden');
-            document.getElementById('mapsPage').classList.add('hidden');
-            document.getElementById('navHome').classList.add('active');
-            document.getElementById('pageTitle').innerText = "Transaksi Baru";
-        } else if(page === 'dash') {
-            document.getElementById('formPage').classList.add('hidden');
-            document.getElementById('dashPage').classList.remove('hidden');
-            document.getElementById('mapsPage').classList.add('hidden');
-            document.getElementById('navDash').classList.add('active');
-            document.getElementById('pageTitle').innerText = "Dashboard Harian";
-            loadDashboard();
-        } else if(page === 'maps') {
-            document.getElementById('formPage').classList.add('hidden');
-            document.getElementById('dashPage').classList.add('hidden');
-            document.getElementById('mapsPage').classList.remove('hidden');
-            document.getElementById('navMaps').classList.add('active');
-            document.getElementById('pageTitle').innerText = "Rute Harian";
-            initMap();
-        }
-    }
-
-    
+    // --- LOGIC MAPS & TIMELINE ---
     async function initMap() {
-        if(map) { setTimeout(() => { map.invalidateSize(); }, 300); return; }
+        // Reset View
+        document.getElementById('mapLoading').classList.remove('hidden');
+        document.getElementById('routeContent').classList.add('hidden');
         
-        document.getElementById('mapTargetName').innerText = "Memuat Rute...";
-        document.getElementById('mapTargetInfo').innerText = "Mohon tunggu, mengambil data...";
-        
+        if (map) { map.remove(); map = null; } 
+
         try {
             const res = await callAPI('getMaps');
             
@@ -294,40 +327,117 @@
                 const office = res.office.split(',').map(Number);
                 const stores = res.stores;
                 
-                document.getElementById('mapTargetName').innerText = `Rute Harian (${stores.length} Toko)`;
-                document.getElementById('mapTargetInfo').innerText = "Rute: Kantor -> Semua Toko -> Kantor";
-
+                // 1. Render Map
                 map = L.map('mapArea').setView(office, 13);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
 
-                let waypoints = [L.latLng(office[0], office[1])];
-                stores.forEach(toko => {
-                    if(toko.lat && toko.long) {
-                       waypoints.push(L.latLng(toko.lat, toko.long));
-                       L.marker([toko.lat, toko.long]).addTo(map).bindPopup(`<b>${toko.kode}</b><br>${toko.nama}`);
-                    }
-                });
-                waypoints.push(L.latLng(office[0], office[1]));
+                // 2. Setup Waypoints
+                let waypoints = [L.latLng(office[0], office[1])]; // Start Kantor
+                stores.forEach(s => waypoints.push(L.latLng(s.lat, s.long)));
+                waypoints.push(L.latLng(office[0], office[1])); // End Kantor
 
-                L.Routing.control({
+                // 3. Routing (Kalkulasi)
+                routingControl = L.Routing.control({
                     waypoints: waypoints,
                     routeWhileDragging: false,
                     showAlternatives: false,
                     fitSelectedRoutes: true,
-                    lineOptions: { styles: [{color: 'blue', opacity: 0.6, weight: 4}] },
-                    createMarker: function() { return null; } 
+                    show: false, // Hide default text panel
+                    createMarker: function(i, wp, nWps) {
+                        return L.marker(wp.latLng).bindPopup(i === 0 || i === nWps - 1 ? "Kantor" : stores[i-1].nama);
+                    }
+                }).on('routesfound', function(e) {
+                    var routes = e.routes;
+                    var summary = routes[0].summary;
+                    
+                    // Update Summary
+                    document.getElementById('totalDist').innerText = (summary.totalDistance / 1000).toFixed(1) + " km";
+                    document.getElementById('totalTime').innerText = Math.round(summary.totalTime / 60) + " mnt";
+                    
+                    // Update Timeline List
+                    renderTimeline(stores);
+                    
+                    document.getElementById('mapLoading').classList.add('hidden');
+                    document.getElementById('routeContent').classList.remove('hidden');
                 }).addTo(map);
-                
-                L.marker(office).addTo(map).bindPopup("<b>KANTOR</b>").openPopup();
 
             } else {
-                document.getElementById('mapTargetName').innerText = "Gagal Memuat";
-                document.getElementById('mapTargetInfo').innerText = res.message;
+                Swal.fire('Info', res.message, 'info');
+                document.getElementById('mapLoading').innerHTML = "Tidak ada data rute.";
             }
-        } catch(e) { console.log(e); }
+        } catch(e) {
+            console.log(e);
+            document.getElementById('mapLoading').innerHTML = "Gagal memuat peta.";
+        }
     }
 
-    
+    function renderTimeline(stores) {
+        const container = document.getElementById('timelineContainer');
+        container.innerHTML = "";
+
+        // 1. Kantor Start
+        container.innerHTML += `
+        <div class="timeline-item">
+            <div class="timeline-icon start"><i class="fas fa-building"></i></div>
+            <div class="timeline-content">
+                <div class="timeline-title">Kantor Cashbox</div>
+                <div class="timeline-info"><i class="fas fa-clock"></i> Mulai Perjalanan</div>
+            </div>
+        </div>`;
+
+        // 2. Loop Toko
+        stores.forEach((toko, index) => {
+            container.innerHTML += `
+            <div class="timeline-item">
+                <div class="timeline-icon shop">${index + 1}</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">${toko.nama}</div>
+                    <div class="timeline-info">
+                        <span class="badge bg-light text-dark border">${toko.kode}</span>
+                    </div>
+                    <a href="http://googleusercontent.com/maps.google.com/maps?daddr=${toko.lat},${toko.long}" target="_blank" class="btn-nav-small">
+                        <i class="fas fa-location-arrow me-1"></i> Buka G-Maps
+                    </a>
+                </div>
+            </div>`;
+        });
+
+        // 3. Kantor End
+        container.innerHTML += `
+        <div class="timeline-item">
+            <div class="timeline-icon start"><i class="fas fa-flag-checkered"></i></div>
+            <div class="timeline-content">
+                <div class="timeline-title">Kembali ke Kantor</div>
+                <div class="timeline-info">Selesai</div>
+            </div>
+        </div>`;
+    }
+
+    // --- NAVIGATION SWITCHER ---
+    function switchPage(page) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('formPage').classList.add('hidden');
+        document.getElementById('dashPage').classList.add('hidden');
+        document.getElementById('mapsPage').classList.add('hidden');
+
+        if(page === 'home') {
+            document.getElementById('formPage').classList.remove('hidden');
+            document.getElementById('navHome').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Transaksi Baru";
+        } else if(page === 'dash') {
+            document.getElementById('dashPage').classList.remove('hidden');
+            document.getElementById('navDash').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Dashboard Harian";
+            loadDashboard();
+        } else if(page === 'maps') {
+            document.getElementById('mapsPage').classList.remove('hidden');
+            document.getElementById('navMaps').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Rute Perjalanan";
+            initMap();
+        }
+    }
+
+    // --- STANDARD FUNCTIONS (Hitung, Template, API, Login, dll) ---
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
