@@ -164,7 +164,7 @@
 
                 <div id="noSection" class="hidden">
                     <div class="mb-3">
-                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan</span>
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
                         <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
                     </div>
                 </div>
@@ -317,8 +317,8 @@
                        const point = [toko.lat, toko.long];
                        pathCoords.push(point);
                        const numIcon = L.divIcon({ className: 'custom-div-icon', html: `<div style='background:#ef4444; color:white; width:24px; height:24px; border-radius:50%; text-align:center; font-size:12px; font-weight:bold; line-height:22px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);'>${index + 1}</div>`, iconSize: [24, 24] });
-                       // Link Navigasi Google Maps
-                       const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}`;
+                       // Link Navigasi Google Maps (PERBAIKAN: Menggunakan format Universal Link)
+                       const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
                        const popupContent = `<b>${index+1}. ${toko.kode}</b><br>${toko.nama}<br><a href="${gmapsLink}" target="_blank" style="display:inline-block; margin-top:5px; text-decoration:none; color:#2563eb; font-weight:bold; background:#eff6ff; padding:5px 10px; border-radius:5px;">Navigasi ke sini ➜</a>`;
                        L.marker(point, {icon: numIcon}).addTo(map).bindPopup(popupContent);
                     }
@@ -444,7 +444,7 @@
 
         // KANTOR START
         html += `<div class="d-flex align-items-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">Start</div>
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
             <div class="fw-bold">KANTOR CASHBOX</div>
         </div>`;
 
@@ -457,6 +457,9 @@
             totalKm += parseFloat(toko.distanceFromPrev);
             totalMinutes += (travelTime + SERVICE_TIME); // +1 menit service time
 
+            // Link Navigasi Google Maps (PERBAIKAN: Menggunakan format Universal Link)
+            const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
+
             html += `
             <div class="route-card" style="position:relative; z-index:2;">
                 <div class="route-info">
@@ -468,7 +471,7 @@
                         <span class="route-meta-badge meta-stop"><i class="fas fa-hand-paper me-1"></i> Stop ${SERVICE_TIME} mnt</span>
                     </div>
                 </div>
-                <a href="http://googleusercontent.com/maps.google.com/?q=${toko.lat},${toko.long}&travelmode=driving" target="_blank" class="btn-navigate">
+                <a href="${gmapsLink}" target="_blank" class="btn-navigate">
                     <i class="fas fa-location-arrow"></i>
                 </a>
             </div>`;
@@ -494,7 +497,7 @@
 
         html += `
         <div class="summary-card">
-            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6>
+            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">ESTIMASI PERJALANAN</h6>
             <div class="row text-center">
                 <div class="col-6 border-end border-secondary">
                     <small class="d-block text-white-50">Total Waktu</small>
