@@ -17,40 +17,85 @@
   <style>
     
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
+    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+    
+    
+    .app-card { 
+        background: white; 
+        width: 100%; 
+        max-width: 500px; 
+        height: 100%;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05); 
+        position: relative; 
+        display: flex; 
+        flex-direction: column; 
+    }
+    
     .hidden { display: none !important; }
+
     
-    
-    .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; z-index: 9999; position: relative; }
+    .login-container { 
+        position: absolute; top:0; left:0; right:0; bottom:0; 
+        display: flex; flex-direction: column; justify-content: center; 
+        padding: 30px; background: white; z-index: 9999; 
+    }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
     
+    #mainApp {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    
+    .app-header {
+        flex-shrink: 0; 
+        height: 60px;
+        background: white; 
+        border-bottom: 1px solid #f1f5f9;
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        padding: 0 20px;
+        z-index: 50;
+    }
+
+    
+    .page-content {
+        flex: 1; 
+        overflow-y: auto; 
+        background: #fcfcfc;
+        position: relative;
+        padding-bottom: 20px; 
+    }
+
+    
+    .bottom-nav {
+        flex-shrink: 0; 
+        height: 70px;
+        background: white;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.08);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 100;
+        border-top-left-radius: 25px;
+        border-top-right-radius: 25px;
+    }
+
+    
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
-
     
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     
-    
-    .sig-wrapper {
-        border: 2px dashed #cbd5e1; 
-        border-radius: 15px; 
-        background: #fafafa;
-        overflow: hidden; 
-        position: relative;
-    }
-    canvas#signature-pad { 
-        width: 100%; 
-        height: 180px; 
-        display: block;
-        touch-action: none; 
-    }
-
+    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
     
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
@@ -58,6 +103,7 @@
     .dash-val-md { font-size: 20px; font-weight: 600; color: #334155; }
     .progress-stacked { height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden; margin-top: 10px; }
     .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #667eea); width: 0%; transition: width 0.8s ease-in-out; }
+    
     .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
     .rincian-table tr { background: #f8fafc; }
     .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
@@ -66,7 +112,7 @@
 
     
     #mapArea { height: 0; width: 0; display: none; }
-    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
+    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 1; }
     .route-card:active { transform: scale(0.98); }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
     .route-info small { color: #64748b; font-size: 11px; display: block; margin-top: 4px; }
@@ -76,10 +122,6 @@
     .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-    
-    .page-content { flex: 1; overflow-y: auto; padding: 0; background: #fcfcfc; position: relative; margin-top: 60px; margin-bottom: 70px; }
-    .app-header { position: absolute; top:0; left:0; right:0; height:60px; z-index: 50; background: white; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 70px; background: white; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 100; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; cursor: pointer; }
     .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
@@ -103,7 +145,7 @@
       </div>
     </div>
 
-    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
+    <div id="mainApp" class="hidden">
         
         <div class="app-header">
             <div>
@@ -161,14 +203,9 @@
                             <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
                             <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
                         </div>
-                        
                         <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
-                        
-                        <div class="sig-wrapper">
-                            <canvas id="signature-pad"></canvas>
-                        </div>
-
-                        <button class="btn btn-light btn-sm w-100 text-danger fw-bold border mt-2" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
+                        <canvas id="signature-pad" class="mb-2"></canvas>
+                        <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
                     </div>
 
                     <div id="noSection" class="hidden">
@@ -225,9 +262,7 @@
                 </div>
             </div>
 
-        </div>
-
-        <div class="bottom-nav">
+        </div> <div class="bottom-nav">
             <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
             <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
             <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-route"></i> Rute</button>
@@ -254,7 +289,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // SEPTA GANTENG
+    //SEPTA GANTENG
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     const SERVICE_TIME = 1; 
     
@@ -265,7 +300,6 @@
     let routeData = null; 
     let map = null;
 
-    
     
     const canvas = document.getElementById('signature-pad');
     canvas.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
@@ -298,152 +332,24 @@
     }
 
     
-    async function process(btn) {
-      if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
-      if (isTukarMode) {
-          if(signaturePad.isEmpty()) return showMsg('warning','TTD Kosong','Tanda tangan wajib diisi!');
-          if(!document.getElementById('noWa').value) return showMsg('warning','WA Kosong','Isi Nomor WA!');
-      } else {
-          if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
-      }
-
-      
-      const now = new Date();
-      const options = { day: '2-digit', month: 'long', year: 'numeric' };
-      const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
-      
-      btn.innerHTML = 'Memproses...'; btn.disabled = true;
-
-      const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
-      let dataSave = {
-        isTukar: isTukarMode, kodeToko: kodeToko,
-        totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
-        keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
-        k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
-        jabatan: document.getElementById('jabatan').value,
-        namaTim: document.getElementById('namaTim').value,
-        petugas: document.getElementById('petugasNama').value
-      };
-
-      let pdfBase64 = "";
-      let filename = "";
-
-      if (isTukarMode) {
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a6', compress: true });
-          doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
-          doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
-          doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
-
-          doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-          let y = 25; const lh = 4.5;
-          const addRow = (label, val) => {
-              doc.setFont("helvetica", "bold"); doc.text(label, 5, y); doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y); y += lh;
-          };
-
-          addRow("Tanggal", formattedDate);
-          addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
-          const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
-          doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y); y += (alamatLines.length * 4);
-          addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
-          addRow("No WA", document.getElementById('noWa').value);
-          addRow("Petugas", document.getElementById('petugasNama').value);
-          addRow("Kendaraan", document.getElementById('kendaraan').value);
-          y += 2; doc.line(5, y, 100, y); y += 5;
-
-          doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
-          doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
-
-          document.querySelectorAll('.d-input').forEach(el => {
-            let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
-            if(qty > 0) {
-                doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text((d*qty).toLocaleString(), 98, y, {align:'right'}); y += 4;
-                if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
-                if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
-                if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
-                if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
-            }
-          });
-          y += 2; doc.line(5, y, 100, y); y += 6;
-          doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-          doc.text("TOTAL: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
-
-          y += 10; doc.setFontSize(8); doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
-          const sigImg = signaturePad.toDataURL('image/png');
-          doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
-          y += 20; doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
-
-          const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
-          filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
-          pdfBase64 = doc.output('datauristring');
-      }
-
-      try {
-          const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
-          
-          if(res.status === 'success') {
-              if (isTukarMode) {
-                  let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
-                  if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
-                  const totalFormatted = document.getElementById('totalDisplay').innerText;
-                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
-                  const waLink = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
-
-                  btn.classList.remove('btn-success'); 
-                  btn.classList.add('btn-primary'); 
-                  btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
-
-                  
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Transaksi Berhasil!',
-                      text: 'Klik tombol di bawah untuk membuka WhatsApp',
-                      showCancelButton: true,
-                      confirmButtonColor: '#25D366',
-                      confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
-                      cancelButtonText: 'Tutup & Lanjut',
-                      reverseButtons: true
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                          window.location.href = waLink;
-                          setTimeout(() => { location.reload(); }, 1500);
-                      } else {
-                          location.reload();
-                      }
-                  });
-
-              } else {
-                  Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
-              }
-          } else { 
-              showMsg('error', 'Gagal Simpan', res.message); 
-              btn.disabled = false; btn.innerHTML = 'ULANGI'; 
-          }
-      } catch(e) { 
-          showMsg('error', 'Jaringan Error', 'Koneksi bermasalah: ' + e); 
-          btn.disabled = false; btn.innerHTML = 'ULANGI'; 
-      }
-    }
-
-    
     function switchPage(page) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        
+        document.getElementById('formPage').classList.add('hidden');
+        document.getElementById('dashPage').classList.add('hidden');
+        document.getElementById('mapsPage').classList.add('hidden');
+
         if(page === 'home') {
             document.getElementById('formPage').classList.remove('hidden');
-            document.getElementById('dashPage').classList.add('hidden');
-            document.getElementById('mapsPage').classList.add('hidden');
             document.getElementById('navHome').classList.add('active');
             document.getElementById('pageTitle').innerText = "Transaksi Baru";
         } else if(page === 'dash') {
-            document.getElementById('formPage').classList.add('hidden');
             document.getElementById('dashPage').classList.remove('hidden');
-            document.getElementById('mapsPage').classList.add('hidden');
             document.getElementById('navDash').classList.add('active');
             document.getElementById('pageTitle').innerText = "Dashboard Harian";
             loadDashboard();
         } else if(page === 'maps') {
-            document.getElementById('formPage').classList.add('hidden');
-            document.getElementById('dashPage').classList.add('hidden');
             document.getElementById('mapsPage').classList.remove('hidden');
             document.getElementById('navMaps').classList.add('active');
             document.getElementById('pageTitle').innerText = "Rute Harian";
@@ -459,6 +365,7 @@
         
         try {
             const res = await callAPI('getMaps');
+            
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores;
@@ -493,19 +400,12 @@
                     }
                 }
                 
-                
                 if(sortedStores.length > 0) {
                     let lastStore = sortedStores[sortedStores.length-1];
                     let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
                     routeData = {office: office, stores: sortedStores, returnDist: distToOffice.toFixed(1)};
                 } else {
                     routeData = {office: office, stores: [], returnDist: 0};
-                }
-
-                
-                if(!map) {
-                     map = L.map('mapArea').setView(office, 13);
-                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 }
 
                 renderRouteList(routeData);
@@ -604,20 +504,16 @@
         document.getElementById('routeContainer').innerHTML = html;
     }
 
-    
     function calcDist(lat1, lon1, lat2, lon2) {
         var R = 6371; 
         var dLat = deg2rad(lat2-lat1);
         var dLon = deg2rad(lon2-lon1); 
-        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        var d = R * c; 
-        return d;
+        return R * c; 
     }
     function deg2rad(deg) { return deg * (Math.PI/180); }
 
-    
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
@@ -738,10 +634,125 @@
 
     document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
 
+    async function process(btn) {
+      if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
+      if (isTukarMode) {
+          if(signaturePad.isEmpty()) return showMsg('warning','TTD Kosong','Tanda tangan wajib diisi!');
+          if(!document.getElementById('noWa').value) return showMsg('warning','WA Kosong','Isi Nomor WA!');
+      } else {
+          if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
+      }
+
+      btn.innerHTML = 'Memproses...'; btn.disabled = true;
+
+      const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
+      let dataSave = {
+        isTukar: isTukarMode, kodeToko: kodeToko,
+        totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
+        keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
+        k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
+        jabatan: document.getElementById('jabatan').value,
+        namaTim: document.getElementById('namaTim').value,
+        petugas: document.getElementById('petugasNama').value
+      };
+
+      let pdfBase64 = "";
+      let filename = "";
+      const now = new Date();
+      const options = { day: '2-digit', month: 'long', year: 'numeric' };
+      const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
+
+      if (isTukarMode) {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a6', compress: true });
+          doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
+          doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
+          doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
+
+          doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+          let y = 25; const lh = 4.5;
+          const addRow = (label, val) => {
+              doc.setFont("helvetica", "bold"); doc.text(label, 5, y); doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y); y += lh;
+          };
+
+          addRow("Tanggal", formattedDate);
+          addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
+          const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
+          doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y); y += (alamatLines.length * 4);
+          addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
+          addRow("No WA", document.getElementById('noWa').value);
+          addRow("Petugas", document.getElementById('petugasNama').value);
+          addRow("Kendaraan", document.getElementById('kendaraan').value);
+          y += 2; doc.line(5, y, 100, y); y += 5;
+
+          doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
+          doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
+
+          document.querySelectorAll('.d-input').forEach(el => {
+            let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+            if(qty > 0) {
+                doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text((d*qty).toLocaleString(), 98, y, {align:'right'}); y += 4;
+                if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
+                if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
+                if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
+                if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
+            }
+          });
+          y += 2; doc.line(5, y, 100, y); y += 6;
+          doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+          doc.text("TOTAL: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
+
+          y += 10; doc.setFontSize(8); doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
+          const sigImg = signaturePad.toDataURL('image/png');
+          doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
+          y += 20; doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+
+          const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
+          filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
+          pdfBase64 = doc.output('datauristring');
+      }
+
+      try {
+          const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
+          if(res.status === 'success') {
+              if (isTukarMode) {
+                  let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
+                  if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+                  const totalFormatted = document.getElementById('totalDisplay').innerText;
+                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
+                  const waLink = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
+
+                  btn.classList.remove('btn-success'); 
+                  btn.classList.add('btn-primary'); 
+                  btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
+
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Transaksi Berhasil!',
+                      text: 'Silakan klik tombol di bawah untuk kirim ke WhatsApp',
+                      showCancelButton: true,
+                      confirmButtonColor: '#25D366',
+                      confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
+                      cancelButtonText: 'Tutup & Lanjut',
+                      reverseButtons: true
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          window.location.href = waLink;
+                          setTimeout(() => { location.reload(); }, 2000);
+                      } else {
+                          location.reload();
+                      }
+                  });
+
+              } else {
+                  Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
+              }
+          } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+      } catch(e) { showMsg('error', 'Jaringan Error', 'Koneksi bermasalah'); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+    }
+
     function resizeCanvas() {
-        const c = document.getElementById('signature-pad'); 
-        if(!c) return;
-        const r = Math.max(window.devicePixelRatio||1, 1);
+        const c = document.getElementById('signature-pad'); const r = Math.max(window.devicePixelRatio||1, 1);
         c.width = c.offsetWidth*r; c.height = c.offsetHeight*r; c.getContext("2d").scale(r,r);
     }
     window.onresize = resizeCanvas;
