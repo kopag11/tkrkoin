@@ -38,6 +38,7 @@
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     
+    
     canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
 
     
@@ -159,13 +160,15 @@
                         <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
                     </div>
                     <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
-                    <canvas id="signature-pad" class="mb-2"></canvas>
+                    
+                    <canvas id="signature-pad"></canvas>
+                    
                     <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
                 </div>
 
                 <div id="noSection" class="hidden">
                     <div class="mb-3">
-                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan</span>
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
                         <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
                     </div>
                 </div>
@@ -306,53 +309,30 @@
                 map = L.map('mapArea').setView(office, 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
+                let pathCoords = [];
                 
-                let sortedStores = [];
-                let currentPos = {lat: office[0], long: office[1]};
-                let unvisited = [...stores];
-
-                while (unvisited.length > 0) {
-                    let nearest = null;
-                    let minDist = Infinity;
-                    let nearestIdx = -1;
-
-                    for (let i = 0; i < unvisited.length; i++) {
-                        let t = unvisited[i];
-                        if(t.lat && t.long) {
-                            let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
-                            if (d < minDist) { minDist = d; nearest = t; nearestIdx = i; }
-                        }
-                    }
-
-                    if (nearest) {
-                        let realDist = minDist * 1.4; 
-                        nearest.distanceFromPrev = realDist.toFixed(1); 
-                        sortedStores.push(nearest);
-                        currentPos = {lat: nearest.lat, long: nearest.long};
-                        unvisited.splice(nearestIdx, 1);
-                    } else {
-                        unvisited.forEach(u => sortedStores.push(u));
-                        break;
-                    }
-                }
-                
-                
-                if(sortedStores.length > 0) {
-                    let lastStore = sortedStores[sortedStores.length-1];
-                    let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
-                    routeData = {office: office, stores: sortedStores, returnDist: distToOffice.toFixed(1)};
-                } else {
-                    routeData = {office: office, stores: [], returnDist: 0};
-                }
-
-                
-                let pathCoords = [office];
-                sortedStores.forEach(t => pathCoords.push([t.lat, t.long]));
+                const officeIcon = L.divIcon({ className: 'custom-div-icon', html: "<div style='background:blue; width:14px; height:14px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px black;'></div>", iconSize: [14,14] });
+                L.marker(office, {icon: officeIcon}).addTo(map).bindPopup("<b>KANTOR (Start/End)</b>").openPopup();
                 pathCoords.push(office);
+
+                
+                stores.forEach((toko, index) => {
+                    if (toko.lat && toko.long) {
+                       const point = [toko.lat, toko.long];
+                       pathCoords.push(point);
+                       const numIcon = L.divIcon({ className: 'custom-div-icon', html: `<div style='background:#ef4444; color:white; width:24px; height:24px; border-radius:50%; text-align:center; font-size:12px; font-weight:bold; line-height:22px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);'>${index + 1}</div>`, iconSize: [24, 24] });
+                       
+                       const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
+                       
+                       const popupContent = `<b>${index+1}. ${toko.kode}</b><br>${toko.nama}<br><a href="${gmapsLink}" target="_blank" style="display:inline-block; margin-top:5px; text-decoration:none; color:#2563eb; font-weight:bold; background:#eff6ff; padding:5px 10px; border-radius:5px;">Navigasi ke sini ➜</a>`;
+                       L.marker(point, {icon: numIcon}).addTo(map).bindPopup(popupContent);
+                    }
+                });
+                pathCoords.push(office);
+
+                
                 var bounds = new L.LatLngBounds(pathCoords);
                 map.fitBounds(bounds, {padding: [50, 50]});
-
-                renderRouteList(routeData);
 
             } else {
                 document.getElementById('mapTargetName').innerText = "Gagal Memuat";
@@ -432,7 +412,7 @@
                     }
                 }
                 
-                
+               
                 if(sortedStores.length > 0) {
                     let lastStore = sortedStores[sortedStores.length-1];
                     let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
@@ -470,7 +450,7 @@
         
         html += `<div class="d-flex align-items-center mb-4">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
-            <div class="fw-bold">KANTOR CASHBOX</div>
+            <div class="fw-bold">KANTOR IDM</div>
             <div class="timeline-line"></div>
         </div>`;
 
@@ -507,18 +487,21 @@
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
-
         
+        
+        const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
+
         html += `
-            <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"> <div class="route-info">
-                    <h6>KEMBALI KE KANTOR</h6>
-                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor IDM</div>
+            <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;">
+                <div class="route-info">
+                    <h6>SELESAI: KEMBALI KE KANTOR</h6>
+                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div>
                     <div class="mt-2">
                         <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span>
                         <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span>
                     </div>
                 </div>
-                <a href="https://www.google.com/maps/dir/?api=1&destination==${data.office[0]},${data.office[1]}&travelmode=driving" target="_blank" class="btn-navigate">
+                <a href="${officeLink}" target="_blank" class="btn-navigate">
                     <i class="fas fa-location-arrow"></i>
                 </a>
             </div>`;
