@@ -17,28 +17,30 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* CSS GLOBAL */
+    
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
     .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
     .hidden { display: none !important; }
     
-    /* Login */
+    
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
-    /* Input */
+    
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
 
-    /* Denom */
+    
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
-    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; }
+    
+    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
 
-    /* Dashboard */
+    
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
     .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
@@ -51,12 +53,12 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
-    /* Map Page */
+    
     #mapArea { height: 100%; width: 100%; z-index: 1; }
     .map-info-box { position: absolute; top: 10px; left: 10px; right: 10px; background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 999; }
     .custom-div-icon { background: transparent; border: none; }
     
-    /* Route List Style */
+    
     .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
     .route-card:active { transform: scale(0.98); }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
@@ -71,14 +73,13 @@
     .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     .timeline-line { position: absolute; left: 35px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0; }
 
-    /* Nav */
+    
     .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
     .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
     .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
   </style>
 </head>
 <body>
@@ -164,7 +165,7 @@
 
                 <div id="noSection" class="hidden">
                     <div class="mb-3">
-                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan</span>
                         <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
                     </div>
                 </div>
@@ -246,11 +247,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // --- KONFIGURASI URL & TEMPAT ---
+    //SEPTA GANTENG
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
-    // --- KONFIGURASI PETA (UPDATE 1 MENIT) ---
-    const SERVICE_TIME = 1; // Ubah waktu berhenti per toko jadi 1 menit
+    
+    const SERVICE_TIME = 1; 
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
@@ -263,7 +264,7 @@
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
     }
 
-    // INIT
+    
     window.onload = () => {
         const sess = localStorage.getItem('session');
         if(sess) {
@@ -288,7 +289,7 @@
         resizeCanvas();
     }
 
-    // --- MAPS (VISUAL LINE) ---
+    
     async function initMap() {
         if(map) { setTimeout(() => { map.invalidateSize(); }, 300); return; }
         document.getElementById('mapTargetName').innerText = "Mengambil Data Lokasi...";
@@ -305,29 +306,53 @@
                 map = L.map('mapArea').setView(office, 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-                let pathCoords = [];
-                // Marker Kantor
-                const officeIcon = L.divIcon({ className: 'custom-div-icon', html: "<div style='background:blue; width:14px; height:14px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px black;'></div>", iconSize: [14,14] });
-                L.marker(office, {icon: officeIcon}).addTo(map).bindPopup("<b>KANTOR (Start/End)</b>").openPopup();
-                pathCoords.push(office);
+                
+                let sortedStores = [];
+                let currentPos = {lat: office[0], long: office[1]};
+                let unvisited = [...stores];
 
-                // Marker Toko
-                stores.forEach((toko, index) => {
-                    if (toko.lat && toko.long) {
-                       const point = [toko.lat, toko.long];
-                       pathCoords.push(point);
-                       const numIcon = L.divIcon({ className: 'custom-div-icon', html: `<div style='background:#ef4444; color:white; width:24px; height:24px; border-radius:50%; text-align:center; font-size:12px; font-weight:bold; line-height:22px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.3);'>${index + 1}</div>`, iconSize: [24, 24] });
-                       // Link Navigasi Google Maps (PERBAIKAN: Menggunakan format Universal Link)
-                       const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
-                       const popupContent = `<b>${index+1}. ${toko.kode}</b><br>${toko.nama}<br><a href="${gmapsLink}" target="_blank" style="display:inline-block; margin-top:5px; text-decoration:none; color:#2563eb; font-weight:bold; background:#eff6ff; padding:5px 10px; border-radius:5px;">Navigasi ke sini ➜</a>`;
-                       L.marker(point, {icon: numIcon}).addTo(map).bindPopup(popupContent);
+                while (unvisited.length > 0) {
+                    let nearest = null;
+                    let minDist = Infinity;
+                    let nearestIdx = -1;
+
+                    for (let i = 0; i < unvisited.length; i++) {
+                        let t = unvisited[i];
+                        if(t.lat && t.long) {
+                            let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
+                            if (d < minDist) { minDist = d; nearest = t; nearestIdx = i; }
+                        }
                     }
-                });
-                pathCoords.push(office);
 
-                // FIT BOUNDS AGAR SEMUA TOKO TERLIHAT (TANPA GARIS POLYLINE)
+                    if (nearest) {
+                        let realDist = minDist * 1.4; 
+                        nearest.distanceFromPrev = realDist.toFixed(1); 
+                        sortedStores.push(nearest);
+                        currentPos = {lat: nearest.lat, long: nearest.long};
+                        unvisited.splice(nearestIdx, 1);
+                    } else {
+                        unvisited.forEach(u => sortedStores.push(u));
+                        break;
+                    }
+                }
+                
+                
+                if(sortedStores.length > 0) {
+                    let lastStore = sortedStores[sortedStores.length-1];
+                    let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
+                    routeData = {office: office, stores: sortedStores, returnDist: distToOffice.toFixed(1)};
+                } else {
+                    routeData = {office: office, stores: [], returnDist: 0};
+                }
+
+                
+                let pathCoords = [office];
+                sortedStores.forEach(t => pathCoords.push([t.lat, t.long]));
+                pathCoords.push(office);
                 var bounds = new L.LatLngBounds(pathCoords);
                 map.fitBounds(bounds, {padding: [50, 50]});
+
+                renderRouteList(routeData);
 
             } else {
                 document.getElementById('mapTargetName').innerText = "Gagal Memuat";
@@ -336,7 +361,7 @@
         } catch(e) { console.log(e); document.getElementById('mapTargetName').innerText = "Error Jaringan"; }
     }
 
-    // --- NAVIGATION ---
+    
     function switchPage(page) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         if(page === 'home') {
@@ -362,7 +387,7 @@
         }
     }
 
-    // --- ROUTE LIST LOGIC (DENGAN FAKTOR 1.4 & SERVICE TIME) ---
+    
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
@@ -375,7 +400,7 @@
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores;
                 
-                // Algoritma Nearest Neighbor (Greedy)
+                
                 let sortedStores = [];
                 let currentPos = {lat: office[0], long: office[1]};
                 let unvisited = [...stores];
@@ -394,7 +419,7 @@
                     }
 
                     if (nearest) {
-                        // HITUNG JARAK REALISTIS (Garis Lurus * 1.4)
+                        
                         let realDist = minDist * 1.4;
                         nearest.distanceFromPrev = realDist.toFixed(1); 
                         
@@ -407,7 +432,7 @@
                     }
                 }
                 
-                // Hitung jarak kembali ke kantor
+                
                 if(sortedStores.length > 0) {
                     let lastStore = sortedStores[sortedStores.length-1];
                     let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
@@ -416,7 +441,7 @@
                     routeData = {office: office, stores: [], returnDist: 0};
                 }
 
-                // INIT MAP UNTUK ZOOM OTOMATIS (TANPA GARIS VISUAL)
+                
                 map = L.map('mapArea').setView(office, 13);
                 let pathCoords = [office];
                 sortedStores.forEach(t => pathCoords.push([t.lat, t.long]));
@@ -442,22 +467,23 @@
         let totalKm = 0;
         let totalMinutes = 0;
 
-        // KANTOR START
+        
         html += `<div class="d-flex align-items-center mb-4">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
             <div class="fw-bold">KANTOR CASHBOX</div>
+            <div class="timeline-line"></div>
         </div>`;
 
         stores.forEach((toko, i) => {
-            // Estimasi Waktu (Asumsi 25 km/jam)
+            
             let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); 
             if(travelTime < 1) travelTime = 1;
             
-            // Akumulasi Total
+            
             totalKm += parseFloat(toko.distanceFromPrev);
-            totalMinutes += (travelTime + SERVICE_TIME); // +1 menit service time
+            totalMinutes += (travelTime + SERVICE_TIME); 
 
-            // Link Navigasi Google Maps (PERBAIKAN: Menggunakan format Universal Link)
+            
             const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
 
             html += `
@@ -477,27 +503,34 @@
             </div>`;
         });
 
-        // KANTOR END
+        
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
 
-        html += `<div class="d-flex align-items-center mt-3 pt-3 border-top text-muted">
-            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">End</div>
-            <div>
-                <div class="fw-bold">KEMBALI KE KANTOR</div>
-                <small class="d-block text-muted">Jarak: ${data.returnDist} km (±${returnTime} mnt)</small>
-            </div>
-        </div>`;
+        
+        html += `
+            <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"> <div class="route-info">
+                    <h6>SELESAI: KEMBALI KE KANTOR</h6>
+                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div>
+                    <div class="mt-2">
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span>
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span>
+                    </div>
+                </div>
+                <a href="http://googleusercontent.com/maps.google.com/?q=${data.office[0]},${data.office[1]}&travelmode=driving" target="_blank" class="btn-navigate">
+                    <i class="fas fa-location-arrow"></i>
+                </a>
+            </div>`;
 
-        // TOTAL SUMMARY
+        
         let hours = Math.floor(totalMinutes / 60);
         let mins = totalMinutes % 60;
         let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
 
         html += `
         <div class="summary-card">
-            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">ESTIMASI PERJALANAN</h6>
+            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6>
             <div class="row text-center">
                 <div class="col-6 border-end border-secondary">
                     <small class="d-block text-white-50">Total Waktu</small>
@@ -516,7 +549,7 @@
         document.getElementById('routeContainer').innerHTML = html;
     }
 
-    // Haversine Formula
+    
     function calcDist(lat1, lon1, lat2, lon2) {
         var R = 6371; 
         var dLat = deg2rad(lat2-lat1);
@@ -529,7 +562,7 @@
     }
     function deg2rad(deg) { return deg * (Math.PI/180); }
 
-    // --- OTHER LOGIC (Template, Login, Process) ---
+    
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
