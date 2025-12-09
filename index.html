@@ -9,35 +9,22 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
     /* CSS GLOBAL */
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-    
-    /* Layout Utama Fix */
-    .app-card { 
-        background: white; 
-        width: 100%; 
-        max-width: 500px; 
-        height: 100%; 
-        box-shadow: 0 0 20px rgba(0,0,0,0.05); 
-        position: relative; 
-        display: flex; 
-        flex-direction: column; 
-    }
-    
+    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
     .hidden { display: none !important; }
     
     /* Login */
-    .login-container { 
-        position: absolute; top:0; left:0; right:0; bottom:0;
-        display: flex; flex-direction: column; justify-content: center; 
-        padding: 30px; background: white; z-index: 99999; 
-    }
+    .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
@@ -51,8 +38,16 @@
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     
-    /* Tanda Tangan */
-    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
+    /* --- FIX 2: TOUCH ACTION NONE (Anti Scroll saat TTD) --- */
+    canvas#signature-pad { 
+        border: 2px dashed #cbd5e1; 
+        border-radius: 15px; 
+        width: 100%; 
+        height: 180px; 
+        background: #fafafa;
+        touch-action: none; /* KUNCI UTAMA IPHONE */
+        display: block;
+    }
 
     /* Dashboard */
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
@@ -67,8 +62,24 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
+    /* --- FIX 4: NO VIEW MAP (Hidden) --- */
+    #mapArea { height: 0; width: 0; display: none; } /* Peta disembunyikan total */
+    
     /* Route List Style */
-    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
+    .route-card { 
+        background: #fff; 
+        border-radius: 15px; 
+        padding: 15px; 
+        margin-bottom: 15px; 
+        border-left: 5px solid var(--primary); 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        transition: transform 0.2s; 
+        position: relative; 
+        z-index: 2; 
+    }
     .route-card:active { transform: scale(0.98); }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
     .route-info small { color: #64748b; font-size: 11px; display: block; margin-top: 4px; }
@@ -80,47 +91,14 @@
     .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     
     .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .timeline-line { position: absolute; left: 35px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; z-index: 0; }
-
-    /* CONTENT SCROLL AREA */
-    .page-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 0;
-        background: #fcfcfc;
-        position: relative;
-        /* Penting agar scroll tidak nabrak header/footer */
-        margin-top: 60px; 
-        margin-bottom: 70px; 
-    }
-
-    /* HEADER FIXED */
-    .app-header {
-        position: absolute; top:0; left:0; right:0; height:60px; z-index: 50;
-        background: white; border-bottom: 1px solid #f1f5f9;
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 0 20px;
-    }
-
-    /* BOTTOM NAV FIXED */
-    .bottom-nav { 
-        position: absolute; 
-        bottom: 0; left: 0; right: 0;
-        height: 70px;
-        background: white; 
-        box-shadow: 0 -5px 25px rgba(0,0,0,0.08); 
-        display: flex; 
-        justify-content: space-around; 
-        align-items: center;
-        z-index: 100; /* Z-Index Tinggi agar bisa diklik */
-        border-top-left-radius: 25px; 
-        border-top-right-radius: 25px; 
-    }
+    /* Timeline line dihapus agar bersih */
     
-    .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; cursor: pointer; }
-    .nav-item i { font-size: 22px; }
+    /* Nav */
+    .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+    .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
+    .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
-    
     .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
   </style>
 </head>
@@ -141,129 +119,133 @@
       </div>
     </div>
 
-    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100%;">
-        
-        <div class="app-header">
+    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom shadow-sm z-3">
             <div>
                <h6 class="m-0 fw-bold text-primary" id="pageTitle" style="font-size: 18px;">Transaksi Baru</h6>
+               <div class="d-flex align-items-center mt-1">
+                   <span class="badge bg-primary rounded-pill me-2" id="badgeNama">-</span>
+                   <small class="text-muted" id="badgeKendaraan"></small>
+               </div>
                <input type="hidden" id="petugasNama"><input type="hidden" id="kendaraan">
             </div>
             <button class="btn btn-light text-danger rounded-circle" onclick="logout()"><i class="fas fa-power-off"></i></button>
         </div>
 
-        <div class="page-content">
-            
-            <div id="formPage">
-              <div class="p-4">
-                <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA TOKO</span>
-                <div class="input-group mb-2">
-                  <input type="text" class="input-modern" id="kodeToko" placeholder="Cari Kode..." style="border-top-right-radius:0; border-bottom-right-radius:0; text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()">
-                  <button class="btn btn-primary" onclick="cariToko(this)" style="border-top-right-radius:12px; border-bottom-right-radius:12px; padding: 0 20px;"><i class="fas fa-search"></i></button>
-                </div>
+        <div id="formPage" class="page-scroll">
+          <div class="p-4">
+            <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA TOKO</span>
+            <div class="input-group mb-2">
+              <input type="text" class="input-modern" id="kodeToko" placeholder="Cari Kode..." style="border-top-right-radius:0; border-bottom-right-radius:0; text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()">
+              <button class="btn btn-primary" onclick="cariToko(this)" style="border-top-right-radius:12px; border-bottom-right-radius:12px; padding: 0 20px;"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="row g-2 mb-4">
+               <div class="col-12"><input type="text" class="input-modern input-readonly" id="namaToko" placeholder="Nama Toko" readonly></div>
+               <div class="col-12"><textarea class="input-modern input-readonly" id="alamatToko" placeholder="Alamat" rows="2" readonly></textarea></div>
+            </div>
+
+            <div id="transactionArea" class="hidden">
+                <div class="alert alert-info text-center py-2 mb-3 fw-bold" id="statusLabel">Sedang Transaksi</div>
+                <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA PENYETOR</span>
                 <div class="row g-2 mb-4">
-                   <div class="col-12"><input type="text" class="input-modern input-readonly" id="namaToko" placeholder="Nama Toko" readonly></div>
-                   <div class="col-12"><textarea class="input-modern input-readonly" id="alamatToko" placeholder="Alamat" rows="2" readonly></textarea></div>
+                    <div class="col-6">
+                        <select class="input-modern form-select" id="jabatan">
+                            <option value="CIF">CIF</option><option value="SSL">SSL</option><option value="SJL">SJL</option><option value="SCG">SCG</option><option value="SCB">SCB</option>
+                        </select>
+                    </div>
+                    <div class="col-6"><input type="text" class="input-modern" id="namaTim" placeholder="Nama Tim"></div>
                 </div>
 
-                <div id="transactionArea" class="hidden">
-                    <div class="alert alert-info text-center py-2 mb-3 fw-bold" id="statusLabel">Sedang Transaksi</div>
-                    <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA PENYETOR</span>
-                    <div class="row g-2 mb-4">
-                        <div class="col-6">
-                            <select class="input-modern form-select" id="jabatan">
-                                <option value="CIF">CIF</option><option value="SSL">SSL</option><option value="SJL">SJL</option><option value="SCG">SCG</option><option value="SCB">SCB</option>
-                            </select>
-                        </div>
-                        <div class="col-6"><input type="text" class="input-modern" id="namaTim" placeholder="Nama Tim"></div>
-                    </div>
-
-                    <div id="yesSection">
-                        <div class="col-12 mb-4">
-                            <span class="d-block small fw-bold text-muted mb-1">Nomor WA</span>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
-                                <input type="tel" class="input-modern" id="noWa" placeholder="08xxx" style="border-top-left-radius:0; border-bottom-left-radius:0;">
-                            </div>
-                        </div>
-
-                        <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
-                            <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT</span>
-                            <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
-                                <option value="">Loading Templates...</option>
-                            </select>
-                        </div>
-
-                        <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
-                        <div id="denomContainer" class="mb-4"></div>
-                        <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
-                            <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
-                            <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
-                        </div>
-                        <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
-                        <canvas id="signature-pad" class="mb-2"></canvas>
-                        <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
-                    </div>
-
-                    <div id="noSection" class="hidden">
-                        <div class="mb-3">
-                            <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
-                            <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
+                <div id="yesSection">
+                    <div class="col-12 mb-4">
+                        <span class="d-block small fw-bold text-muted mb-1">Nomor WA</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
+                            <input type="tel" class="input-modern" id="noWa" placeholder="08xxx" style="border-top-left-radius:0; border-bottom-left-radius:0;">
                         </div>
                     </div>
 
-                    <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)" style="font-size: 16px;">
-                        <i class="fas fa-paper-plane me-2"></i> PROSES TRANSAKSI
-                    </button>
+                    <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
+                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT</span>
+                        <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
+                            <option value="">Loading Templates...</option>
+                        </select>
+                    </div>
+
+                    <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
+                    <div id="denomContainer" class="mb-4"></div>
+                    <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
+                        <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
+                        <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
+                    </div>
+                    <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
+                    <canvas id="signature-pad" class="mb-2"></canvas>
+                    <button class="btn btn-light btn-sm w-100 text-danger fw-bold border" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
                 </div>
-              </div>
+
+                <div id="noSection" class="hidden">
+                    <div class="mb-3">
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
+                        <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
+                    </div>
+                </div>
+
+                <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)" style="font-size: 16px;">
+                    <i class="fas fa-paper-plane me-2"></i> PROSES TRANSAKSI
+                </button>
             </div>
-
-            <div id="dashPage" class="hidden">
-                <div class="p-4">
-                    <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
-                        <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <div class="dash-val-lg text-white" style="font-size: 32px;" id="dModal">Rp 0</div>
-                        </div>
-                    </div>
-                    <div class="dash-section">
-                        <div class="row mb-4">
-                            <div class="col-6 border-end"><div class="dash-label">SUDAH DITUKAR</div><div class="dash-val-md text-success" id="dKeluar">Rp 0</div></div>
-                            <div class="col-6 ps-4"><div class="dash-label">SISA UANG</div><div class="dash-val-md text-danger" id="dSisa">Rp 0</div></div>
-                        </div>
-                        <div class="mb-2 d-flex justify-content-between align-items-end"><span class="dash-label m-0">PROGRESS</span><span class="dash-label m-0 fw-bold text-primary fs-5" id="dPersen">0%</span></div>
-                        <div class="progress-stacked"><div class="progress-bar-fill" id="dBar"></div></div>
-                        <div class="mt-4 pt-3 border-top d-flex justify-content-between"><span class="dash-label text-dark">TOTAL TOKO TERLAYANI</span><span class="fw-bold text-dark fs-5" id="dToko">0</span></div>
-                    </div>
-                    <div class="dash-section p-0 overflow-hidden">
-                        <div class="p-3 border-bottom bg-light"><div class="dash-label m-0">RINCIAN SISA STOK (DENOM)</div></div>
-                        <div class="p-3"><table class="rincian-table" id="tableRincian"></table></div>
-                    </div>
-                    <div class="text-center mt-3 mb-5">
-                        <button class="btn btn-outline-secondary rounded-pill px-4" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh Data</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mapsPage" class="hidden">
-                <div class="p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold m-0" id="routeTitle">Memuat Data...</h6>
-                        <button class="btn btn-sm btn-light border" onclick="initRouteList()"><i class="fas fa-sync"></i></button>
-                    </div>
-                    
-                    <div id="routeContainer">
-                        <div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Sedang menyusun rute...</div>
-                    </div>
-                </div>
-            </div>
-
-        </div> <div class="bottom-nav">
-            <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
-            <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
-            <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-route"></i> Rute</button>
+          </div>
         </div>
 
+        <div id="dashPage" class="page-scroll hidden">
+            <div class="p-4">
+                <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
+                    <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
+                    <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="dash-val-lg text-white" style="font-size: 32px;" id="dModal">Rp 0</div>
+                    </div>
+                </div>
+                <div class="dash-section">
+                    <div class="row mb-4">
+                        <div class="col-6 border-end"><div class="dash-label">SUDAH DITUKAR</div><div class="dash-val-md text-success" id="dKeluar">Rp 0</div></div>
+                        <div class="col-6 ps-4"><div class="dash-label">SISA UANG</div><div class="dash-val-md text-danger" id="dSisa">Rp 0</div></div>
+                    </div>
+                    <div class="mb-2 d-flex justify-content-between align-items-end"><span class="dash-label m-0">PROGRESS</span><span class="dash-label m-0 fw-bold text-primary fs-5" id="dPersen">0%</span></div>
+                    <div class="progress-stacked"><div class="progress-bar-fill" id="dBar"></div></div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between"><span class="dash-label text-dark">TOTAL TOKO TERLAYANI</span><span class="fw-bold text-dark fs-5" id="dToko">0</span></div>
+                </div>
+                <div class="dash-section p-0 overflow-hidden">
+                    <div class="p-3 border-bottom bg-light"><div class="dash-label m-0">RINCIAN SISA STOK (DENOM)</div></div>
+                    <div class="p-3"><table class="rincian-table" id="tableRincian"></table></div>
+                </div>
+                <div class="text-center mt-3 mb-5">
+                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mapsPage" class="page-scroll hidden">
+            <div id="mapArea"></div> 
+            
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold m-0" id="routeTitle">Memuat Data...</h6>
+                    <button class="btn btn-sm btn-light border" onclick="initRouteList()"><i class="fas fa-sync"></i></button>
+                </div>
+                
+                <div id="routeContainer">
+                    <div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Sedang menyusun rute...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="bottomNav" class="bottom-nav hidden">
+        <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
+        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-route"></i> Rute</button>
     </div>
   </div>
 
@@ -288,14 +270,15 @@
     // --- KONFIGURASI URL & TEMPAT ---
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
-    // --- KONFIGURASI PETA (UPDATE 1 MENIT) ---
-    const SERVICE_TIME = 1; 
+    // --- KONFIGURASI PETA ---
+    const SERVICE_TIME = 1; // 1 Menit per toko
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
     let isTukarMode = true; 
     let templatesData = []; 
     let routeData = null; 
+    let map = null;
 
     function showMsg(icon, title, text) {
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
@@ -318,32 +301,33 @@
     function showMainApp(user) {
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden'); 
+        document.getElementById('bottomNav').classList.remove('hidden');
         document.getElementById('petugasNama').value = user.nama;
+        document.getElementById('badgeNama').innerText = user.nama;
         document.getElementById('kendaraan').value = user.nopol;
+        document.getElementById('badgeKendaraan').innerText = user.nopol;
         resizeCanvas();
     }
 
-    // --- NAVIGATION LOGIC (FIXED) ---
+    // --- NAVIGATION ---
     function switchPage(page) {
-        // Reset Active Nav
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        
-        // Hide All Pages
-        document.getElementById('formPage').classList.add('hidden');
-        document.getElementById('dashPage').classList.add('hidden');
-        document.getElementById('mapsPage').classList.add('hidden');
-
-        // Show Selected Page & Activate Nav
         if(page === 'home') {
             document.getElementById('formPage').classList.remove('hidden');
+            document.getElementById('dashPage').classList.add('hidden');
+            document.getElementById('mapsPage').classList.add('hidden');
             document.getElementById('navHome').classList.add('active');
             document.getElementById('pageTitle').innerText = "Transaksi Baru";
         } else if(page === 'dash') {
+            document.getElementById('formPage').classList.add('hidden');
             document.getElementById('dashPage').classList.remove('hidden');
+            document.getElementById('mapsPage').classList.add('hidden');
             document.getElementById('navDash').classList.add('active');
             document.getElementById('pageTitle').innerText = "Dashboard Harian";
             loadDashboard();
         } else if(page === 'maps') {
+            document.getElementById('formPage').classList.add('hidden');
+            document.getElementById('dashPage').classList.add('hidden');
             document.getElementById('mapsPage').classList.remove('hidden');
             document.getElementById('navMaps').classList.add('active');
             document.getElementById('pageTitle').innerText = "Rute Harian";
@@ -351,7 +335,7 @@
         }
     }
 
-    // --- ROUTE LIST LOGIC (VISUAL LIST) ---
+    // --- ROUTE LIST LOGIC (WITHOUT VISUAL MAP) ---
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
@@ -394,7 +378,7 @@
                     }
                 }
                 
-                // Hitung jarak kembali ke kantor
+                // Hitung kembali ke kantor
                 if(sortedStores.length > 0) {
                     let lastStore = sortedStores[sortedStores.length-1];
                     let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
@@ -423,7 +407,7 @@
 
         // KANTOR START
         html += `<div class="d-flex align-items-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">Start</div>
             <div class="fw-bold">KANTOR CASHBOX</div>
         </div>`;
 
@@ -436,11 +420,11 @@
             totalKm += parseFloat(toko.distanceFromPrev);
             totalMinutes += (travelTime + SERVICE_TIME); 
 
-            // Link Navigasi Google Maps
-            const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
+            // Link Navigasi Google Maps (FIX IPHONE LINK)
+            const gmapsLink = `http://maps.google.com/maps?q=${toko.lat},${toko.long}`;
 
             html += `
-            <div class="route-card" style="position:relative; z-index:2;">
+            <div class="route-card">
                 <div class="route-info">
                     <h6>${i+1}. ${toko.kode}</h6>
                     <div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div>
@@ -456,14 +440,14 @@
             </div>`;
         });
 
-        // KANTOR END
+        // --- FIX 3: KEMBALI KE KANTOR MASUK LIST AGAR ADA NAVIGASI ---
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
-        const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
+        const officeLink = `http://maps.google.com/maps?q=${data.office[0]},${data.office[1]}`;
 
         html += `
-            <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;">
+            <div class="route-card" style="border-left: 5px solid #64748b;">
                 <div class="route-info">
                     <h6>SELESAI: KEMBALI KE KANTOR</h6>
                     <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div>
@@ -725,23 +709,24 @@
                   const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
                   const waLink = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
 
+                  // --- FIX 1: SWEETALERT UNTUK BUKA WA DI IPHONE ---
                   btn.classList.remove('btn-success'); 
                   btn.classList.add('btn-primary'); 
                   btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
 
                   Swal.fire({
                       icon: 'success',
-                      title: 'Transaksi Berhasil!',
-                      text: 'Silakan klik tombol di bawah untuk kirim ke WhatsApp',
+                      title: 'Berhasil Disimpan!',
+                      text: 'Klik tombol di bawah untuk kirim ke WhatsApp',
                       showCancelButton: true,
                       confirmButtonColor: '#25D366',
-                      confirmButtonText: '<i class="fab fa-whatsapp"></i> Kirim ke WhatsApp',
-                      cancelButtonText: 'Tutup & Lanjut',
+                      confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
+                      cancelButtonText: 'Tutup',
                       reverseButtons: true
                   }).then((result) => {
                       if (result.isConfirmed) {
                           window.location.href = waLink;
-                          setTimeout(() => { location.reload(); }, 2000);
+                          setTimeout(() => { location.reload(); }, 1000);
                       } else {
                           location.reload();
                       }
