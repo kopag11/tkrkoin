@@ -14,11 +14,11 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    
+    /* CSS GLOBAL */
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
     
-    
+    /* Layout Utama */
     .app-card { 
         background: white; 
         width: 100%; 
@@ -32,7 +32,7 @@
     
     .hidden { display: none !important; }
     
-    
+    /* LOGIN */
     .login-container { 
         position: absolute; top:0; left:0; right:0; bottom:0;
         display: flex; flex-direction: column; justify-content: center; 
@@ -41,7 +41,7 @@
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
-    
+    /* HEADER */
     .app-header {
         flex: 0 0 auto;
         height: 60px;
@@ -53,7 +53,7 @@
         z-index: 50;
     }
 
-    
+    /* KONTEN SCROLL */
     .page-content {
         flex: 1 1 auto;
         overflow-y: auto;
@@ -63,7 +63,7 @@
         -webkit-overflow-scrolling: touch;
     }
 
-    /
+    /* NAVIGASI BAWAH */
     .bottom-nav {
         flex: 0 0 auto;
         background: white;
@@ -80,7 +80,7 @@
         padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
 
-    
+    /* ITEM STYLE */
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
@@ -89,11 +89,11 @@
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     
-    
+    /* CANVAS TTD */
     .sig-wrapper { border: 2px dashed #cbd5e1; border-radius: 15px; background: #fafafa; overflow: hidden; position: relative; }
     canvas#signature-pad { width: 100%; height: 180px; display: block; touch-action: none; }
 
-    
+    /* DASHBOARD */
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
     .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
@@ -106,7 +106,7 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
-    
+    /* RUTE LIST STYLE */
     .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 1; }
     .route-card:active { transform: scale(0.98); }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
@@ -286,7 +286,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    //SEPTA GANTENG
+    // --- KONFIGURASI URL & TEMPAT ---
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     const SERVICE_TIME = 1; 
     
@@ -296,7 +296,7 @@
     let templatesData = []; 
     let routeData = null; 
 
-    
+    // FIX IPHONE SIGNATURE
     const canvas = document.getElementById('signature-pad');
     canvas.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
     canvas.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
@@ -305,7 +305,7 @@
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
     }
 
-    
+    // INIT
     window.onload = () => {
         const sess = localStorage.getItem('session');
         if(sess) {
@@ -327,7 +327,7 @@
         resizeCanvas();
     }
 
-    
+    // --- NAVIGATION LOGIC ---
     function switchPage(page) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById('formPage').classList.add('hidden');
@@ -351,7 +351,7 @@
         }
     }
 
-    
+    // --- ROUTE LIST LOGIC (NO LEAFLET VISUAL) ---
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
@@ -418,7 +418,7 @@
         let totalKm = 0;
         let totalMinutes = 0;
 
-        
+        // START
         html += `<div class="d-flex align-items-center mb-4"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0;">Start</div><div class="fw-bold">KANTOR CASHBOX</div></div>`;
 
         stores.forEach((toko, i) => {
@@ -429,18 +429,45 @@
 
             const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
 
-            html += `<div class="route-card"><div class="route-info"><h6>${i+1}. ${toko.kode}</h6><div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div><div class="mt-2"><span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span><span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span><span class="route-meta-badge meta-stop"><i class="fas fa-hand-paper me-1"></i> ${SERVICE_TIME} mnt</span></div></div><a href="${gmapsLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a></div>`;
+            html += `
+            <div class="route-card">
+                <div class="route-info">
+                    <h6>${i+1}. ${toko.kode}</h6>
+                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div>
+                    <div class="mt-2">
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span>
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span>
+                        <span class="route-meta-badge meta-stop"><i class="fas fa-hand-paper me-1"></i> Stop ${SERVICE_TIME} mnt</span>
+                    </div>
+                </div>
+                <a href="${gmapsLink}" target="_blank" class="btn-navigate">
+                    <i class="fas fa-location-arrow"></i>
+                </a>
+            </div>`;
         });
 
-        
+        // END
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
         const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
 
-        html += `<div class="route-card" style="border-left: 5px solid #64748b;"><div class="route-info"><h6>SELESAI: KEMBALI KE KANTOR</h6><div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div><div class="mt-2"><span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span><span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span></div></div><a href="${officeLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a></div>`;
+        html += `
+            <div class="route-card" style="border-left: 5px solid #64748b;">
+                <div class="route-info">
+                    <h6>SELESAI: KEMBALI KE KANTOR</h6>
+                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div>
+                    <div class="mt-2">
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span>
+                        <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span>
+                    </div>
+                </div>
+                <a href="${officeLink}" target="_blank" class="btn-navigate">
+                    <i class="fas fa-location-arrow"></i>
+                </a>
+            </div>`;
 
-        
+        // SUMMARY
         let hours = Math.floor(totalMinutes / 60);
         let mins = totalMinutes % 60;
         let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
@@ -450,6 +477,7 @@
         document.getElementById('routeContainer').innerHTML = html;
     }
 
+    // Haversine
     function calcDist(lat1, lon1, lat2, lon2) {
         var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); 
         var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
@@ -667,7 +695,6 @@
                   const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
                   const waLink = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
 
-                  
                   btn.classList.remove('btn-success'); 
                   btn.classList.add('btn-primary'); 
                   btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
