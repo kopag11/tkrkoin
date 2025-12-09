@@ -511,14 +511,14 @@
         
         html += `
             <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"> <div class="route-info">
-                    <h6>SELESAI: KEMBALI KE KANTOR</h6>
-                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor Pusat</div>
+                    <h6>KEMBALI KE KANTOR</h6>
+                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">Kantor IDM</div>
                     <div class="mt-2">
                         <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span>
                         <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span>
                     </div>
                 </div>
-                <a href="http://googleusercontent.com/maps.google.com/?q=${data.office[0]},${data.office[1]}&travelmode=driving" target="_blank" class="btn-navigate">
+                <a href="https://www.google.com/maps/dir/?api=1&destination==${data.office[0]},${data.office[1]}&travelmode=driving" target="_blank" class="btn-navigate">
                     <i class="fas fa-location-arrow"></i>
                 </a>
             </div>`;
