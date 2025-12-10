@@ -760,7 +760,7 @@
                   else if(noWa.startsWith('8')) noWa = '62' + noWa;
                   
                   const totalFormatted = document.getElementById('totalDisplay').innerText;
-                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Konfimasi jika ada selisih ke Cashbox 081357348851\nTerima kasih`;
+                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
                   
                   
                   const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
