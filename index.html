@@ -9,31 +9,24 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   
-  
-
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
-
   <style>
-    
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
     .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
     .hidden { display: none !important; }
     
-    
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
     .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
     @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    
     
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
 
-    
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
@@ -49,7 +42,6 @@
         display: block;
     }
 
-    
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
     .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
@@ -62,9 +54,7 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
-    
     #mapArea { height: 0; width: 0; display: none; } 
-    
     
     .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
     .route-card:active { transform: scale(0.98); }
@@ -78,7 +68,6 @@
     .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     
     .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    
     
     .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
@@ -256,28 +245,63 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    //SEPTA GANTENG
+    // SEPTA
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
-    
     
     const SERVICE_TIME = 1; 
     
     const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+    
     const signaturePad = new SignaturePad(document.getElementById('signature-pad'));
     let isTukarMode = true; 
     let templatesData = []; 
     let routeData = null; 
     let map = null;
 
-    
+
     const canvas = document.getElementById('signature-pad');
-    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
-    canvas.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+    
+    function preventScroll(e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+        }
+    }
+
+    canvas.addEventListener("touchstart", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent("mousedown", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+    }, { passive: false });
+
+    canvas.addEventListener("touchmove", function (e) {
+        if (e.target === canvas) {
+            e.preventDefault();
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent("mousemove", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+    }, { passive: false });
+
+    canvas.addEventListener("touchend", function (e) {
+        if (e.target === canvas) {
+            var mouseEvent = new MouseEvent("mouseup", {});
+            canvas.dispatchEvent(mouseEvent);
+        }
+    }, { passive: false });
+   
 
     function showMsg(icon, title, text) {
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
     }
-
     
     window.onload = () => {
         const sess = localStorage.getItem('session');
@@ -290,6 +314,7 @@
             container.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty"><div class="denom-total">Rp <span class="subtotal">0</span></div></div>`;
         });
         loadTemplatesFromSheet();
+        resizeCanvas();
     };
 
     function showMainApp(user) {
@@ -300,10 +325,10 @@
         document.getElementById('badgeNama').innerText = user.nama;
         document.getElementById('kendaraan').value = user.nopol;
         document.getElementById('badgeKendaraan').innerText = user.nopol;
-        resizeCanvas();
+        setTimeout(resizeCanvas, 500); // Pastikan canvas dirender ulang saat tampil
     }
 
-    
+ 
     async function initMap() {
         if(map) { setTimeout(() => { map.invalidateSize(); }, 300); return; }
         document.getElementById('mapTargetName').innerText = "Mengambil Data Lokasi...";
@@ -317,26 +342,15 @@
                 document.getElementById('mapTargetName').innerText = `Rute Harian (${stores.length} Toko)`;
                 document.getElementById('mapTargetInfo').innerText = "Urutan: Kantor -> Toko 1... -> Kantor";
 
-               
-
                 let pathCoords = [];
-                
-
-                
                 stores.forEach((toko, index) => {
                     if (toko.lat && toko.long) {
                        const point = [toko.lat, toko.long];
                        pathCoords.push(point);
-                       
                        const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
-                       const popupContent = `<b>${index+1}. ${toko.kode}</b><br>${toko.nama}<br><a href="${gmapsLink}" target="_blank" style="display:inline-block; margin-top:5px; text-decoration:none; color:#2563eb; font-weight:bold; background:#eff6ff; padding:5px 10px; border-radius:5px;">Navigasi ke sini ➜</a>`;
-                       
                     }
                 });
                 pathCoords.push(office);
-
-                
-
             } else {
                 document.getElementById('mapTargetName').innerText = "Gagal Memuat";
                 document.getElementById('mapTargetInfo').innerText = res.message;
@@ -344,7 +358,6 @@
         } catch(e) { console.log(e); document.getElementById('mapTargetName').innerText = "Error Jaringan"; }
     }
 
-    
     function switchPage(page) {
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         if(page === 'home') {
@@ -353,6 +366,7 @@
             document.getElementById('mapsPage').classList.add('hidden');
             document.getElementById('navHome').classList.add('active');
             document.getElementById('pageTitle').innerText = "Transaksi Baru";
+            setTimeout(resizeCanvas, 200); // Resize saat pindah tab agar tidak gepeng
         } else if(page === 'dash') {
             document.getElementById('formPage').classList.add('hidden');
             document.getElementById('dashPage').classList.remove('hidden');
@@ -370,7 +384,6 @@
         }
     }
 
-    
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
@@ -382,7 +395,6 @@
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores;
-                
                 
                 let sortedStores = [];
                 let currentPos = {lat: office[0], long: office[1]};
@@ -402,10 +414,8 @@
                     }
 
                     if (nearest) {
-                        
                         let realDist = minDist * 1.4;
                         nearest.distanceFromPrev = realDist.toFixed(1); 
-                        
                         sortedStores.push(nearest);
                         currentPos = {lat: nearest.lat, long: nearest.long};
                         unvisited.splice(nearestIdx, 1);
@@ -415,7 +425,6 @@
                     }
                 }
                 
-                
                 if(sortedStores.length > 0) {
                     let lastStore = sortedStores[sortedStores.length-1];
                     let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.4;
@@ -424,7 +433,6 @@
                     routeData = {office: office, stores: [], returnDist: 0};
                 }
 
-                
                 map = L.map('mapArea').setView(office, 13);
                 let pathCoords = [office];
                 sortedStores.forEach(t => pathCoords.push([t.lat, t.long]));
@@ -450,22 +458,19 @@
         let totalKm = 0;
         let totalMinutes = 0;
 
-        
         html += `<div class="d-flex align-items-center mb-4">
             <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
             <div class="fw-bold">KANTOR IDM</div>
         </div>`;
 
         stores.forEach((toko, i) => {
-            
             let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); 
             if(travelTime < 1) travelTime = 1;
             
-            
             totalKm += parseFloat(toko.distanceFromPrev);
             totalMinutes += (travelTime + SERVICE_TIME); 
-
             
+           
             const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
 
             html += `
@@ -485,7 +490,6 @@
             </div>`;
         });
 
-        
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
         totalMinutes += returnTime;
@@ -506,7 +510,6 @@
                 </a>
             </div>`;
 
-        
         let hours = Math.floor(totalMinutes / 60);
         let mins = totalMinutes % 60;
         let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
@@ -531,7 +534,6 @@
 
         document.getElementById('routeContainer').innerHTML = html;
     }
-
     
     function calcDist(lat1, lon1, lat2, lon2) {
         var R = 6371; 
@@ -545,7 +547,6 @@
     }
     function deg2rad(deg) { return deg * (Math.PI/180); }
 
-   
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
@@ -748,13 +749,17 @@
           const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
           if(res.status === 'success') {
               if (isTukarMode) {
+                  
                   let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
                   if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+                  else if(noWa.startsWith('8')) noWa = '62' + noWa;
+                  
                   const totalFormatted = document.getElementById('totalDisplay').innerText;
                   const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
-                  const waLink = `whatsapp://send?phone=${noWa}&text=${encodeURIComponent(msg)}`;
-
                   
+                  
+                  const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
+
                   btn.classList.remove('btn-success'); 
                   btn.classList.add('btn-primary'); 
                   btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
@@ -785,8 +790,13 @@
     }
 
     function resizeCanvas() {
-        const c = document.getElementById('signature-pad'); const r = Math.max(window.devicePixelRatio||1, 1);
-        c.width = c.offsetWidth*r; c.height = c.offsetHeight*r; c.getContext("2d").scale(r,r);
+        const c = document.getElementById('signature-pad'); 
+        if(c) {
+            const r = Math.max(window.devicePixelRatio||1, 1);
+            c.width = c.offsetWidth*r; 
+            c.height = c.offsetHeight*r; 
+            c.getContext("2d").scale(r,r);
+        }
     }
     window.onresize = resizeCanvas;
   </script>
