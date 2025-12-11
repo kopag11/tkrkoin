@@ -548,7 +548,7 @@
 
         html += `
         <div class="summary-card">
-            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6>
+            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">ESTIMASI PERJALANAN</h6>
             <div class="row text-center">
                 <div class="col-6 border-end border-secondary">
                     <small class="d-block text-white-50">Total Waktu</small>
@@ -770,7 +770,7 @@
                   else if(noWa.startsWith('8')) noWa = '62' + noWa;
                   
                   const totalFormatted = document.getElementById('totalDisplay').innerText;
-                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
+                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
                   const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
 
                   btn.classList.remove('btn-success'); 
