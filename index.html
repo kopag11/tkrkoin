@@ -31,16 +31,7 @@
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
     
-    
-    canvas#signature-pad { 
-        border: 2px dashed #cbd5e1; 
-        border-radius: 15px; 
-        width: 100%; 
-        height: 180px; 
-        background: #fafafa;
-        touch-action: none; 
-        display: block;
-    }
+    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
 
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
     .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
@@ -54,7 +45,6 @@
     .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
     .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
 
-    
     .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
     .route-card:active { transform: scale(0.98); }
     .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
@@ -241,7 +231,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    //SEPTA GANTENG
+    // SEPTA GANTENG
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
     const SERVICE_TIME = 1; 
@@ -252,18 +242,12 @@
     let templatesData = []; 
     let routeData = null; 
 
-    
     function initSignaturePad() {
         const canvas = document.getElementById('signature-pad');
         const newCanvas = canvas.cloneNode(true);
         canvas.parentNode.replaceChild(newCanvas, canvas);
 
-        signaturePad = new SignaturePad(newCanvas, {
-            backgroundColor: 'rgba(255, 255, 255, 0)',
-            penColor: 'rgb(0, 0, 0)'
-        });
-
-        
+        signaturePad = new SignaturePad(newCanvas, { backgroundColor: 'rgba(255, 255, 255, 0)', penColor: 'rgb(0, 0, 0)' });
         newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
         newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
     }
@@ -357,7 +341,7 @@
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
-        document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Mengoptimalkan rute melingkar...</div>';
+        document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menyusun jalur kiri (hemat nyebrang)...</div>';
         
         try {
             const res = await callAPI('getMaps');
@@ -365,6 +349,7 @@
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores; 
+                let skippedCount = res.skipped || 0;
                 
                 
                 let roughRoute = [];
@@ -398,6 +383,9 @@
                 let optimizedStores = optimizeRoute2Opt(roughRoute, office);
                 
                 
+                optimizedStores = ensureCounterClockwise(optimizedStores, office);
+
+                
                 let prev = {lat: office[0], long: office[1]};
                 optimizedStores.forEach(t => {
                     let d = calcDist(prev.lat, prev.long, t.lat, t.long);
@@ -405,11 +393,15 @@
                     prev = t;
                 });
 
-                
                 let lastStore = optimizedStores[optimizedStores.length-1];
                 let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.3;
                 
-                routeData = {office: office, stores: optimizedStores, returnDist: distToOffice.toFixed(1)};
+                routeData = {
+                    office: office, 
+                    stores: optimizedStores, 
+                    returnDist: distToOffice.toFixed(1),
+                    skipped: skippedCount 
+                };
 
                 renderRouteList(routeData); 
 
@@ -419,6 +411,25 @@
         } catch(e) { 
             console.log(e);
             document.getElementById('routeContainer').innerHTML = '<div class="alert alert-danger">Gagal memuat rute</div>'; 
+        }
+    }
+
+    function ensureCounterClockwise(route, officeCoord) {
+        if (route.length < 3) return route; 
+        let sum = 0;
+        let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
+
+        for (let i = 0; i < path.length - 1; i++) {
+            let cur = path[i];
+            let next = path[i+1];
+            sum += (next.long - cur.long) * (next.lat + cur.lat);
+        }
+        
+        
+        if (sum > 0) {
+            return route.reverse();
+        } else {
+            return route;
         }
     }
 
@@ -478,6 +489,11 @@
         const stores = data.stores;
         let totalSelesai = 0;
         let html = '';
+        
+        if (data.skipped > 0) {
+            html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error (Cek Koordinat/Kode)</div>`;
+        }
+
         let totalKm = 0;
         let totalMinutes = 0;
 
@@ -522,7 +538,8 @@
             </div>`;
         });
         
-        document.getElementById('routeTitle').innerHTML = `Progress: <span class="text-success fw-bold">${totalSelesai}</span> / ${stores.length} Toko`;
+        let errorText = data.skipped > 0 ? ` <span class="text-danger small">(${data.skipped} Skip)</span>` : "";
+        document.getElementById('routeTitle').innerHTML = `Progress: <span class="text-success fw-bold">${totalSelesai}</span> / ${stores.length} Toko ${errorText}`;
 
         let returnTime = Math.ceil(data.returnDist / 25 * 60);
         totalKm += parseFloat(data.returnDist);
@@ -548,7 +565,7 @@
 
         html += `
         <div class="summary-card">
-            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">ESTIMASI PERJALANAN</h6>
+            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6>
             <div class="row text-center">
                 <div class="col-6 border-end border-secondary">
                     <small class="d-block text-white-50">Total Waktu</small>
