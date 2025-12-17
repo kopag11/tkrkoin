@@ -272,7 +272,7 @@
         const newCanvas = canvas.cloneNode(true);
         canvas.parentNode.replaceChild(newCanvas, canvas);
         
-        signaturePad = new SignaturePad(newCanvas, { backgroundColor: 'rgba(255, 255, 255, 0)', penColor: 'rgb(0, 0, 0)' });
+        signaturePad = new SignaturePad(newCanvas, { backgroundColor: 'rgba(255, 255, 255)', penColor: 'rgb(0, 0, 0)' });
         
         newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
         newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
