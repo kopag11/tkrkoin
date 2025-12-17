@@ -278,8 +278,8 @@
         signaturePad = new SignaturePad(newCanvas, { 
             backgroundColor: 'rgb(255, 255, 255)', 
             penColor: 'rgb(0, 0, 0)',
-            minWidth: 2, 
-            maxWidth: 3  
+            minWidth: 3, 
+            maxWidth: 5  
         });
         
         newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
@@ -614,7 +614,7 @@
 
               if (isTukarMode) {
                   const { jsPDF } = window.jspdf;
-                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 240], compress: true });
+                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 200], compress: true });
                   
                   doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
                   doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
@@ -697,7 +697,7 @@
                   y += 10; doc.setFontSize(7); doc.setTextColor(150,150,150); doc.text("*** Simpan struk ini sebagai bukti sah ***", 52.5, y, {align:'center'});
 
                   const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
-                  filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
+                  filename = `struk-penukaran-${kodeToko}-${dateFile}.pdf`;
                   pdfBase64 = doc.output('datauristring');
               }
 
