@@ -145,15 +145,21 @@
                     <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-4 border border-warning">
                         <span class="d-block small fw-bold text-dark mb-2 ps-1"><i class="fas fa-money-bill-wave me-1"></i> UANG DITERIMA (DARI TOKO)</span>
                         
+                        <div class="d-flex justify-content-between px-2 mb-1 text-muted opacity-75" style="font-size:11px; font-weight:700;">
+                            <div style="width:70px; text-align:center;">DENOM</div>
+                            <div style="width:80px; text-align:center;">QTY</div>
+                            <div style="flex:1; text-align:right;">NOMINAL</div>
+                        </div>
+
                         <div class="denom-row mb-2">
                             <div class="denom-badge bg-secondary">50.000</div>
-                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="Qty">
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="0">
                             <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
                         </div>
 
                         <div class="denom-row mb-0">
                             <div class="denom-badge bg-secondary">100.000</div>
-                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="Qty">
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="0">
                             <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
                         </div>
                         
@@ -391,7 +397,7 @@
                     } else { break; }
                 }
                 
-                
+               
                 let optimizedStores = applyTwoOpt(roughRoute, office);
 
                 
@@ -790,7 +796,14 @@
           doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
           doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
           y += 5;
-          doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(0,0,0);
+
+          
+          doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(0,0,0);
+          doc.text("Pecahan", 7, y); 
+          doc.text("Qty", 40, y, {align: 'center'}); 
+          doc.text("Nominal", 98, y, {align:'right'}); 
+          y += 4;
+          doc.setFont("helvetica", "normal");
 
           document.querySelectorAll('.t-input').forEach(el => {
             let qty = parseInt(el.value) || 0; 
