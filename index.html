@@ -357,30 +357,27 @@
                 let unvisited = [...stores];
 
                 while (unvisited.length > 0) {
-                    let nearest = null;
-                    let minDist = Infinity;
                     let nearestIdx = -1;
+                    let minDist = Infinity;
 
                     for (let i = 0; i < unvisited.length; i++) {
                         let t = unvisited[i];
-                        if(t.lat && t.long) {
-                            let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
-                            if (d < minDist) { minDist = d; nearest = t; nearestIdx = i; }
-                        }
+                        let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
+                        if (d < minDist) { minDist = d; nearestIdx = i; }
                     }
 
-                    if (nearest) {
-                        roughRoute.push(nearest);
-                        currentPos = {lat: nearest.lat, long: nearest.long};
+                    if (nearestIdx !== -1) {
+                        let nextStore = unvisited[nearestIdx];
+                        roughRoute.push(nextStore);
+                        currentPos = {lat: nextStore.lat, long: nextStore.long};
                         unvisited.splice(nearestIdx, 1);
                     } else {
-                        unvisited.forEach(u => roughRoute.push(u));
                         break;
                     }
                 }
                 
                 
-                let optimizedStores = optimizeRoute2Opt(roughRoute, office);
+                let optimizedStores = applyTwoOpt(roughRoute, office);
                 
                 
                 optimizedStores = ensureCounterClockwise(optimizedStores, office);
@@ -425,21 +422,17 @@
             sum += (next.long - cur.long) * (next.lat + cur.lat);
         }
         
-        
-        if (sum > 0) {
-            return route.reverse();
-        } else {
-            return route;
-        }
+        if (sum > 0) return route.reverse();
+        return route;
     }
 
-    function optimizeRoute2Opt(stores, officeCoord) {
+    function applyTwoOpt(route, officeCoord) {
         let office = {lat: officeCoord[0], long: officeCoord[1]};
-        let bestRoute = [...stores];
+        let bestRoute = [...route];
         let improved = true;
         let count = 0;
 
-        while(improved && count < 50) {
+        while(improved && count < 100) {
             improved = false;
             count++;
             for (let i = 0; i < bestRoute.length - 1; i++) {
