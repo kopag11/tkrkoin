@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Tukar Koin Digital</title>
+  <title>Tukar Koin Digital Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,7 +16,10 @@
   <style>
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
+    
+    
+    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; min-height: 100dvh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
+    
     .hidden { display: none !important; }
     
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
@@ -185,7 +188,7 @@
             </div>
           </div>
         </div>
-
+        
         <div id="dashPage" class="page-scroll hidden">
             <div class="p-4">
                 <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
@@ -226,7 +229,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div id="bottomNav" class="bottom-nav hidden">
@@ -269,8 +271,9 @@
         const canvas = document.getElementById('signature-pad');
         const newCanvas = canvas.cloneNode(true);
         canvas.parentNode.replaceChild(newCanvas, canvas);
-
+        
         signaturePad = new SignaturePad(newCanvas, { backgroundColor: 'rgba(255, 255, 255, 0)', penColor: 'rgb(0, 0, 0)' });
+        
         newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
         newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
     }
@@ -363,241 +366,102 @@
     
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
-
         document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menghitung jarak terdekat...</div>';
-        
         try {
             const res = await callAPI('getMaps');
-            
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores; 
                 let skippedCount = res.skipped || 0;
                 
-                
-                let roughRoute = [];
-                let currentPos = {lat: office[0], long: office[1]};
-                let unvisited = [...stores];
-
+                let roughRoute = []; let currentPos = {lat: office[0], long: office[1]}; let unvisited = [...stores];
                 while (unvisited.length > 0) {
-                    let nearestIdx = -1;
-                    let minDist = Infinity;
-
+                    let nearestIdx = -1; let minDist = Infinity;
                     for (let i = 0; i < unvisited.length; i++) {
                         let t = unvisited[i];
                         let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
                         if (d < minDist) { minDist = d; nearestIdx = i; }
                     }
-
                     if (nearestIdx !== -1) {
-                        let nextStore = unvisited[nearestIdx];
-                        roughRoute.push(nextStore);
-                        currentPos = {lat: nextStore.lat, long: nextStore.long};
-                        unvisited.splice(nearestIdx, 1);
+                        let nextStore = unvisited[nearestIdx]; roughRoute.push(nextStore);
+                        currentPos = {lat: nextStore.lat, long: nextStore.long}; unvisited.splice(nearestIdx, 1);
                     } else { break; }
                 }
                 
-               
                 let optimizedStores = applyTwoOpt(roughRoute, office);
-
-                
                 optimizedStores = ensureCounterClockwise(optimizedStores, office);
-
                 
                 let prev = {lat: office[0], long: office[1]};
                 optimizedStores.forEach(t => {
                     let d = calcDist(prev.lat, prev.long, t.lat, t.long);
-                    t.distanceFromPrev = (d * 1.3).toFixed(1); 
-                    prev = t;
+                    t.distanceFromPrev = (d * 1.3).toFixed(1); prev = t;
                 });
-
                 let lastStore = optimizedStores[optimizedStores.length-1];
                 let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.3;
-                
-                routeData = {
-                    office: office, stores: optimizedStores, returnDist: distToOffice.toFixed(1), skipped: skippedCount 
-                };
-
+                routeData = { office: office, stores: optimizedStores, returnDist: distToOffice.toFixed(1), skipped: skippedCount };
                 renderRouteList(routeData); 
-
-            } else {
-                document.getElementById('routeContainer').innerHTML = `<div class="alert alert-warning">${res.message}</div>`;
-            }
-        } catch(e) { 
-            console.log(e);
-            document.getElementById('routeContainer').innerHTML = '<div class="alert alert-danger">Gagal memuat rute</div>'; 
-        }
+            } else { document.getElementById('routeContainer').innerHTML = `<div class="alert alert-warning">${res.message}</div>`; }
+        } catch(e) { document.getElementById('routeContainer').innerHTML = '<div class="alert alert-danger">Gagal memuat rute</div>'; }
     }
 
     function applyTwoOpt(route, officeCoord) {
         let office = {lat: officeCoord[0], long: officeCoord[1]};
         let bestRoute = [...route];
-        let improved = true;
-        let count = 0;
-        
+        let improved = true; let count = 0;
         while(improved && count < 100) {
-            improved = false;
-            count++;
+            improved = false; count++;
             for (let i = 0; i < bestRoute.length - 1; i++) {
                 for (let k = i + 1; k < bestRoute.length; k++) {
-                    if (shouldSwap(bestRoute, i, k, office)) {
-                        bestRoute = reverseSegment(bestRoute, i, k);
-                        improved = true;
-                    }
+                    if (shouldSwap(bestRoute, i, k, office)) { bestRoute = reverseSegment(bestRoute, i, k); improved = true; }
                 }
             }
-        }
-        return bestRoute;
+        } return bestRoute;
     }
-
     function shouldSwap(route, i, k, office) {
-        let A = (i === 0) ? office : route[i-1];
-        let B = route[i];
-        let C = route[k];
-        let D = (k === route.length - 1) ? office : route[k+1];
-        let d1 = calcDist(A.lat, A.long, B.lat, B.long);
-        let d2 = calcDist(C.lat, C.long, D.lat, D.long);
-        let d3 = calcDist(A.lat, A.long, C.lat, C.long);
-        let d4 = calcDist(B.lat, B.long, D.lat, D.long);
+        let A = (i === 0) ? office : route[i-1]; let B = route[i]; let C = route[k]; let D = (k === route.length - 1) ? office : route[k+1];
+        let d1 = calcDist(A.lat, A.long, B.lat, B.long); let d2 = calcDist(C.lat, C.long, D.lat, D.long);
+        let d3 = calcDist(A.lat, A.long, C.lat, C.long); let d4 = calcDist(B.lat, B.long, D.lat, D.long);
         return (d3 + d4) < (d1 + d2);
     }
-
     function reverseSegment(route, i, k) {
-        let newRoute = [...route];
-        let left = i; let right = k;
-        while (left < right) {
-            let temp = newRoute[left];
-            newRoute[left] = newRoute[right];
-            newRoute[right] = temp;
-            left++; right--;
-        }
+        let newRoute = [...route]; let left = i; let right = k;
+        while (left < right) { let temp = newRoute[left]; newRoute[left] = newRoute[right]; newRoute[right] = temp; left++; right--; }
         return newRoute;
     }
-
     function ensureCounterClockwise(route, officeCoord) {
         if (route.length < 3) return route;
-        let sum = 0;
-        let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
-        for (let i = 0; i < path.length - 1; i++) {
-            let cur = path[i];
-            let next = path[i+1];
-            sum += (next.long - cur.long) * (next.lat + cur.lat);
-        }
-        if (sum > 0) return route.reverse();
-        return route;
+        let sum = 0; let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
+        for (let i = 0; i < path.length - 1; i++) { let cur = path[i]; let next = path[i+1]; sum += (next.long - cur.long) * (next.lat + cur.lat); }
+        if (sum > 0) return route.reverse(); return route;
     }
-
     function renderRouteList(data) {
         const stores = data.stores;
-        let totalSelesai = 0;
-        let html = '';
-        
-        if (data.skipped > 0) {
-            html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error</div>`;
-        }
-
-        let totalKm = 0;
-        let totalMinutes = 0;
-
-        html += `<div class="d-flex align-items-center mb-4">
-            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div>
-            <div class="fw-bold">KANTOR IDM</div>
-        </div>`;
-
+        let totalSelesai = 0; let html = '';
+        if (data.skipped > 0) { html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error</div>`; }
+        let totalKm = 0; let totalMinutes = 0;
+        html += `<div class="d-flex align-items-center mb-4"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div><div class="fw-bold">KANTOR IDM</div></div>`;
         stores.forEach((toko, i) => {
-            let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); 
-            if(travelTime < 1) travelTime = 1;
-            totalKm += parseFloat(toko.distanceFromPrev);
-            totalMinutes += (travelTime + SERVICE_TIME); 
-            
-            let isDone = toko.sudahInput === true;
-            if(isDone) totalSelesai++;
-
-            let cardClass = isDone ? "route-card border-success" : "route-card";
-            let bgStyle = isDone ? "background-color: #dcfce7;" : ""; 
-            let iconStatus = isDone ? '<i class="fas fa-check-circle text-success fs-5 ms-2"></i>' : '';
-            let btnStyle = isDone ? "background:#198754; color:white;" : ""; 
-            let badgeClass = isDone ? "bg-white text-success border border-success" : "meta-travel";
-
+            let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); if(travelTime < 1) travelTime = 1;
+            totalKm += parseFloat(toko.distanceFromPrev); totalMinutes += (travelTime + SERVICE_TIME); 
+            let isDone = toko.sudahInput === true; if(isDone) totalSelesai++;
+            let cardClass = isDone ? "route-card border-success" : "route-card"; let bgStyle = isDone ? "background-color: #dcfce7;" : ""; 
+            let iconStatus = isDone ? '<i class="fas fa-check-circle text-success fs-5 ms-2"></i>' : ''; let btnStyle = isDone ? "background:#198754; color:white;" : ""; let badgeClass = isDone ? "bg-white text-success border border-success" : "meta-travel";
             const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
-
-            html += `
-            <div class="${cardClass}" style="position:relative; z-index:2; ${bgStyle}">
-                <div class="route-info flex-grow-1">
-                    <div class="d-flex align-items-center">
-                        <h6 class="${isDone ? 'text-success' : ''}">${i+1}. ${toko.kode}</h6>
-                        ${iconStatus}
-                    </div>
-                    <div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div>
-                    <div class="mt-2">
-                        <span class="route-meta-badge ${badgeClass}"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span>
-                        <span class="route-meta-badge ${badgeClass}"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span>
-                    </div>
-                </div>
-                <a href="${gmapsLink}" target="_blank" class="btn-navigate" style="${btnStyle}">
-                    <i class="fas fa-location-arrow"></i>
-                </a>
-            </div>`;
+            html += `<div class="${cardClass}" style="position:relative; z-index:2; ${bgStyle}"><div class="route-info flex-grow-1"><div class="d-flex align-items-center"><h6 class="${isDone ? 'text-success' : ''}">${i+1}. ${toko.kode}</h6>${iconStatus}</div><div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div><div class="mt-2"><span class="route-meta-badge ${badgeClass}"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span><span class="route-meta-badge ${badgeClass}"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span></div></div><a href="${gmapsLink}" target="_blank" class="btn-navigate" style="${btnStyle}"><i class="fas fa-location-arrow"></i></a></div>`;
         });
-        
         let errorText = data.skipped > 0 ? ` <span class="text-danger small">(${data.skipped} Skip)</span>` : "";
         document.getElementById('routeTitle').innerHTML = `Progress: <span class="text-success fw-bold">${totalSelesai}</span> / ${stores.length} Toko ${errorText}`;
-
-        let returnTime = Math.ceil(data.returnDist / 25 * 60);
-        totalKm += parseFloat(data.returnDist);
-        totalMinutes += returnTime;
+        let returnTime = Math.ceil(data.returnDist / 25 * 60); totalKm += parseFloat(data.returnDist); totalMinutes += returnTime;
         const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
-
-        html += `
-            <div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;">
-                <div class="route-info">
-                    <h6>KEMBALI KE KANTOR</h6>
-                    <small>KANTOR IDM</small>
-                    <div class="mt-2">
-                        <span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span>
-                        <span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span>
-                    </div>
-                </div>
-                <a href="${officeLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a>
-            </div>`;
-
-        let hours = Math.floor(totalMinutes / 60);
-        let mins = totalMinutes % 60;
-        let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
-
-        html += `
-        <div class="summary-card">
-            <h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6>
-            <div class="row text-center">
-                <div class="col-6 border-end border-secondary">
-                    <small class="d-block text-white-50">Total Waktu</small>
-                    <span class="fw-bold fs-5">${timeString}</span>
-                </div>
-                <div class="col-6">
-                    <small class="d-block text-white-50">Total Jarak</small>
-                    <span class="fw-bold fs-5">${totalKm.toFixed(1)} KM</span>
-                </div>
-            </div>
-            <div class="mt-2 text-center small text-white-50 fst-italic">*Termasuk waktu berhenti ${SERVICE_TIME} menit per toko</div>
-        </div>`;
-
+        html += `<div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"><div class="route-info"><h6>KEMBALI KE KANTOR</h6><small>KANTOR IDM</small><div class="mt-2"><span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span><span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span></div></div><a href="${officeLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a></div>`;
+        let hours = Math.floor(totalMinutes / 60); let mins = totalMinutes % 60; let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
+        html += `<div class="summary-card"><h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6><div class="row text-center"><div class="col-6 border-end border-secondary"><small class="d-block text-white-50">Total Waktu</small><span class="fw-bold fs-5">${timeString}</span></div><div class="col-6"><small class="d-block text-white-50">Total Jarak</small><span class="fw-bold fs-5">${totalKm.toFixed(1)} KM</span></div></div><div class="mt-2 text-center small text-white-50 fst-italic">*Termasuk waktu berhenti ${SERVICE_TIME} menit per toko</div></div>`;
         document.getElementById('routeContainer').innerHTML = html;
     }
-    
-    function calcDist(lat1, lon1, lat2, lon2) {
-        var R = 6371; 
-        var dLat = deg2rad(lat2-lat1);
-        var dLon = deg2rad(lon2-lon1); 
-        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        return R * c; 
-    }
+    function calcDist(lat1, lon1, lat2, lon2) { var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; }
     function deg2rad(deg) { return deg * (Math.PI/180); }
 
-    function showMsg(icon, title, text) {
-        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
-    }
+    function showMsg(icon, title, text) { Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false }); }
 
     
     function hitungTotal() {
@@ -623,7 +487,6 @@
         document.getElementById('totalTerimaDisplay').innerText = t.toLocaleString('id-ID');
     }
 
-    
     document.addEventListener('input', function(e) { 
         if(e.target.classList.contains('d-input')) { hitungTotal(); } 
         if(e.target.classList.contains('t-input')) { hitungTerima(); } 
@@ -667,8 +530,7 @@
                 document.getElementById('dKeluar').innerText = res.uangDitukar;
                 document.getElementById('dSisa').innerText = res.sisaUang;
                 document.getElementById('dToko').innerText = res.jmlToko;
-                let pct = parseFloat(res.persen.replace('%', '')) || 0;
-                if(pct > 100) pct = 100;
+                let pct = parseFloat(res.persen.replace('%', '')) || 0; if(pct > 100) pct = 100;
                 document.getElementById('dPersen').innerText = res.persen;
                 document.getElementById('dBar').style.width = pct + "%";
                 const list = res.rincian;
@@ -688,15 +550,12 @@
         const res = await callAPI('login', { nik, pass });
         if (res.status === 'success') {
             localStorage.setItem('session', JSON.stringify(res));
-            if(res.warning) {
-                Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
+            if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
             } else { showMainApp(res); }
         } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
       } catch (e) { showMsg('error','Error','Masalah Koneksi'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
     }
-    function logout() { 
-        Swal.fire({ title: 'Keluar?', text: "Anda harus login ulang nanti.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } });
-    }
+    function logout() { Swal.fire({ title: 'Keluar?', text: "Anda harus login ulang nanti.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } }); }
     
     async function cariToko(btn) {
       const kode = document.getElementById('kodeToko').value.toUpperCase();
@@ -716,6 +575,7 @@
 
     document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
 
+    
     async function process(btn) {
       if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
       if (isTukarMode) {
@@ -725,185 +585,173 @@
           if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
       }
 
-      btn.innerHTML = 'Memproses...'; btn.disabled = true;
+      
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses PDF...'; 
+      btn.disabled = true;
 
-      const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
-      let dataSave = {
-        isTukar: isTukarMode, kodeToko: kodeToko,
-        totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
-        keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
-        k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
-        tTerima50: 0, tTerima100: 0,
-        jabatan: document.getElementById('jabatan').value,
-        namaTim: document.getElementById('namaTim').value,
-        petugas: document.getElementById('petugasNama').value
-      };
+      
+      setTimeout(async () => {
+          try {
+              const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
+              let dataSave = {
+                isTukar: isTukarMode, kodeToko: kodeToko,
+                totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
+                keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
+                k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
+                tTerima50: 0, tTerima100: 0,
+                jabatan: document.getElementById('jabatan').value,
+                namaTim: document.getElementById('namaTim').value,
+                petugas: document.getElementById('petugasNama').value
+              };
 
-      let pdfBase64 = "";
-      let filename = "";
-      const now = new Date();
-      const options = { day: '2-digit', month: 'long', year: 'numeric' };
-      const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
+              let pdfBase64 = "";
+              let filename = "";
+              const now = new Date();
+              const options = { day: '2-digit', month: 'long', year: 'numeric' };
+              const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
 
-      if (isTukarMode) {
-          const { jsPDF } = window.jspdf;
-          
-          
-          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 210], compress: true });
-          
-          doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
-          doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
-          doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
-
-          doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-          let y = 25; const lh = 4.5;
-          const addRow = (label, val) => {
-              doc.setFont("helvetica", "bold"); doc.text(label, 5, y); doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y); y += lh;
-          };
-
-          addRow("Tanggal", formattedDate);
-          addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
-          const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
-          doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y); y += (alamatLines.length * 4);
-          addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
-          addRow("No WA", document.getElementById('noWa').value);
-          addRow("Petugas", document.getElementById('petugasNama').value);
-          addRow("Kendaraan", document.getElementById('kendaraan').value);
-          y += 2; doc.line(5, y, 100, y); y += 5;
-
-          doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
-          doc.text("Pecahan (Tukar)", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
-
-          document.querySelectorAll('.d-input').forEach(el => {
-            let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
-            if(qty > 0) {
-                doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text((d*qty).toLocaleString(), 98, y, {align:'right'}); y += 4;
-                if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
-                if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
-                if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
-                if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
-            }
-          });
-          y += 2; doc.line(5, y, 100, y); y += 6;
-          doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-          doc.text("TOTAL TUKAR: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
-
-          
-          y += 8;
-          let adaTerima = false;
-          let totalTerimaPDF = 0;
-          
-          doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
-          doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
-          y += 5;
-
-          
-          doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(0,0,0);
-          doc.text("Pecahan", 7, y); 
-          doc.text("Qty", 40, y, {align: 'center'}); 
-          doc.text("Nominal", 98, y, {align:'right'}); 
-          y += 4;
-          doc.setFont("helvetica", "normal");
-
-          document.querySelectorAll('.t-input').forEach(el => {
-            let qty = parseInt(el.value) || 0; 
-            let d = parseInt(el.getAttribute('data-v'));
-            if(qty > 0) {
-                adaTerima = true;
-                let sub = qty * d;
-                totalTerimaPDF += sub;
-                doc.text(d.toLocaleString(), 7, y); 
-                doc.text(qty.toString(), 40, y, {align: 'center'}); 
-                doc.text(sub.toLocaleString(), 98, y, {align:'right'}); 
-                y += 4;
-                if(d==50000) dataSave.tTerima50 = qty;
-                if(d==100000) dataSave.tTerima100 = qty;
-            }
-          });
-
-          if(!adaTerima) {
-              doc.setFont("helvetica", "italic"); 
-              doc.text("- Tidak ada uang tunai diterima -", 52.5, y, {align:'center'});
-              y += 4;
-          } else {
-              doc.setLineWidth(0.1); doc.line(40, y, 100, y); y+=4;
-              doc.setFont("helvetica", "bold");
-              doc.text("Total Terima: Rp " + totalTerimaPDF.toLocaleString('id-ID'), 98, y, {align:'right'});
-              y += 4;
-          }
-
-          
-          y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
-          doc.text("Petugas", 20, y, {align:'center'}); 
-          doc.text("Tim toko", 85, y, {align:'center'});
-          
-          if(!signaturePad.isEmpty()) {
-              const sigImg = signaturePad.toDataURL('image/png');
-              doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
-          }
-
-          const session = JSON.parse(localStorage.getItem('session'));
-          if (session && session.ttdOtomatis) {
-              doc.addImage(session.ttdOtomatis, 'PNG', 5, y+2, 30, 15);
-          } else {
-              doc.setFontSize(7);
-              doc.text("(TTD Digital)", 20, y+10, {align:'center', color: '#aaaaaa'});
-              doc.setFontSize(8); doc.setTextColor(0,0,0);
-          }
-          
-          y += 20; 
-          doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); 
-          doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
-          
-          
-          y += 10;
-          doc.setFontSize(7); doc.setTextColor(150,150,150);
-          doc.text("*** Simpan struk ini sebagai bukti sah ***", 52.5, y, {align:'center'});
-
-          const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
-          filename = `struk-penukaran-${kodeToko}-${dateFile}.pdf`;
-          pdfBase64 = doc.output('datauristring');
-      }
-
-      try {
-          const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
-          if(res.status === 'success') {
               if (isTukarMode) {
-                  let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
-                  if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
-                  else if(noWa.startsWith('8')) noWa = '62' + noWa;
+                  const { jsPDF } = window.jspdf;
                   
-                  const totalFormatted = document.getElementById('totalDisplay').innerText;
-                  const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
-                  const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
+                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 210], compress: true });
+                  
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
+                  doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
+                  doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
 
-                  btn.classList.remove('btn-success'); 
-                  btn.classList.add('btn-primary'); 
-                  btn.innerHTML = '<i class="fas fa-check-circle"></i> DATA TERSIMPAN!';
+                  doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+                  let y = 25; const lh = 4.5;
+                  const addRow = (label, val) => {
+                      doc.setFont("helvetica", "bold"); doc.text(label, 5, y); doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y); y += lh;
+                  };
 
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Berhasil Disimpan!',
-                      text: 'Klik tombol di bawah untuk kirim ke WhatsApp',
-                      showCancelButton: true,
-                      confirmButtonColor: '#25D366',
-                      confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
-                      cancelButtonText: 'Tutup',
-                      reverseButtons: true
-                  }).then((result) => {
-                      if (result.isConfirmed) {
-                          window.location.href = waLink;
-                          setTimeout(() => { location.reload(); }, 1000);
-                      } else {
-                          location.reload();
-                      }
+                  addRow("Tanggal", formattedDate);
+                  addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
+                  const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
+                  doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y); y += (alamatLines.length * 4);
+                  addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
+                  addRow("No WA", document.getElementById('noWa').value);
+                  addRow("Petugas", document.getElementById('petugasNama').value);
+                  addRow("Kendaraan", document.getElementById('kendaraan').value);
+                  y += 2; doc.line(5, y, 100, y); y += 5;
+
+                  doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
+                  doc.text("Pecahan (Tukar)", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
+
+                  document.querySelectorAll('.d-input').forEach(el => {
+                    let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+                    if(qty > 0) {
+                        doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text((d*qty).toLocaleString(), 98, y, {align:'right'}); y += 4;
+                        if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
+                        if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
+                        if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
+                        if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
+                    }
+                  });
+                  y += 2; doc.line(5, y, 100, y); y += 6;
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+                  doc.text("TOTAL TUKAR: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
+
+                  
+                  y += 8;
+                  let adaTerima = false;
+                  let totalTerimaPDF = 0;
+                  
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
+                  doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
+                  y += 5;
+
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(0,0,0);
+                  doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Nominal", 98, y, {align:'right'}); 
+                  y += 4; doc.setFont("helvetica", "normal");
+
+                  document.querySelectorAll('.t-input').forEach(el => {
+                    let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+                    if(qty > 0) {
+                        adaTerima = true; let sub = qty * d; totalTerimaPDF += sub;
+                        doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text(sub.toLocaleString(), 98, y, {align:'right'}); 
+                        y += 4;
+                        if(d==50000) dataSave.tTerima50 = qty; if(d==100000) dataSave.tTerima100 = qty;
+                    }
                   });
 
-              } else {
-                  Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
+                  if(!adaTerima) { doc.setFont("helvetica", "italic"); doc.text("- Tidak ada uang tunai diterima -", 52.5, y, {align:'center'}); y += 4;
+                  } else { doc.setLineWidth(0.1); doc.line(40, y, 100, y); y+=4; doc.setFont("helvetica", "bold"); doc.text("Total Terima: Rp " + totalTerimaPDF.toLocaleString('id-ID'), 98, y, {align:'right'}); y += 4; }
+
+                  y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
+                  doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
+                  
+                  if(!signaturePad.isEmpty()) {
+                      
+                      const sigImg = signaturePad.toDataURL('image/jpeg', 0.5);
+                      doc.addImage(sigImg, 'JPEG', 70, y+2, 30, 15);
+                  }
+
+                  const session = JSON.parse(localStorage.getItem('session'));
+                  if (session && session.ttdOtomatis) { doc.addImage(session.ttdOtomatis, 'PNG', 5, y+2, 30, 15);
+                  } else { doc.setFontSize(7); doc.text("(TTD Digital)", 20, y+10, {align:'center', color: '#aaaaaa'}); doc.setFontSize(8); doc.setTextColor(0,0,0); }
+                  
+                  y += 20; 
+                  doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); 
+                  doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+                  
+                  y += 10; doc.setFontSize(7); doc.setTextColor(150,150,150); doc.text("*** Simpan struk ini sebagai bukti sah ***", 52.5, y, {align:'center'});
+
+                  const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
+                  filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
+                  pdfBase64 = doc.output('datauristring');
               }
-          } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
-      } catch(e) { showMsg('error', 'Jaringan Error', 'Koneksi bermasalah'); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+
+              
+              btn.innerHTML = 'Mengirim Data...';
+
+              const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
+              
+              if(res.status === 'success') {
+                  if (isTukarMode) {
+                      let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
+                      if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+                      else if(noWa.startsWith('8')) noWa = '62' + noWa;
+                      
+                      const totalFormatted = document.getElementById('totalDisplay').innerText;
+                      const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
+                      const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
+
+                      btn.classList.remove('btn-success'); btn.classList.add('btn-primary'); 
+                      btn.innerHTML = '<i class="fas fa-check-circle"></i> TERSIMPAN!';
+
+                      
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Berhasil!',
+                          text: 'Klik tombol hijau untuk kirim WA. Aplikasi akan refresh otomatis setelahnya.',
+                          showCancelButton: true,
+                          confirmButtonColor: '#25D366',
+                          confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
+                          cancelButtonText: 'Tutup',
+                          reverseButtons: true
+                      }).then((result) => {
+                          if (result.isConfirmed) {
+                              
+                              window.location.href = waLink;
+                              
+                              setTimeout(() => { location.reload(); }, 2000);
+                          } else {
+                              
+                              location.reload();
+                          }
+                      });
+
+                  } else {
+                      Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
+                  }
+              } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+          } catch(e) { 
+              console.error(e);
+              showMsg('error', 'Jaringan Error', 'Koneksi bermasalah atau file terlalu besar.'); 
+              btn.disabled = false; btn.innerHTML = 'ULANGI'; 
+          }
+      }, 100); 
     }
   </script>
 </body>
