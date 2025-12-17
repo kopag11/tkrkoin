@@ -140,10 +140,6 @@
 
                     <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM (TUKAR)</span>
                     <div id="denomContainer" class="mb-4"></div>
-                    <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
-                        <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
-                        <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
-                    </div>
                     
                     <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-4 border border-warning">
                         <span class="d-block small fw-bold text-dark mb-2 ps-1"><i class="fas fa-money-bill-wave me-1"></i> UANG DITERIMA (DARI TOKO)</span>
@@ -168,6 +164,12 @@
                         
                         <div class="mt-2 text-end fw-bold text-dark" style="font-size:14px;">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
                     </div>
+
+                    <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
+                        <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
+                        <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
+                    </div>
+
                     <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
                     
                     <canvas id="signature-pad"></canvas>
@@ -272,7 +274,13 @@
         const newCanvas = canvas.cloneNode(true);
         canvas.parentNode.replaceChild(newCanvas, canvas);
         
-        signaturePad = new SignaturePad(newCanvas, { backgroundColor: 'rgba(255, 255, 255)', penColor: 'rgb(0, 0, 0)' });
+        
+        signaturePad = new SignaturePad(newCanvas, { 
+            backgroundColor: 'rgb(255, 255, 255)', 
+            penColor: 'rgb(0, 0, 0)',
+            minWidth: 2, 
+            maxWidth: 3  
+        });
         
         newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
         newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
@@ -373,7 +381,6 @@
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores; 
                 let skippedCount = res.skipped || 0;
-                
                 let roughRoute = []; let currentPos = {lat: office[0], long: office[1]}; let unvisited = [...stores];
                 while (unvisited.length > 0) {
                     let nearestIdx = -1; let minDist = Infinity;
@@ -387,10 +394,8 @@
                         currentPos = {lat: nextStore.lat, long: nextStore.long}; unvisited.splice(nearestIdx, 1);
                     } else { break; }
                 }
-                
                 let optimizedStores = applyTwoOpt(roughRoute, office);
                 optimizedStores = ensureCounterClockwise(optimizedStores, office);
-                
                 let prev = {lat: office[0], long: office[1]};
                 optimizedStores.forEach(t => {
                     let d = calcDist(prev.lat, prev.long, t.lat, t.long);
@@ -463,7 +468,6 @@
 
     function showMsg(icon, title, text) { Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false }); }
 
-    
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
@@ -475,7 +479,6 @@
         document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
     }
 
-    
     function hitungTerima() {
         let t = 0; 
         document.querySelectorAll('.t-input').forEach(el => {
@@ -585,7 +588,6 @@
           if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
       }
 
-      
       btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses PDF...'; 
       btn.disabled = true;
 
@@ -612,8 +614,7 @@
 
               if (isTukarMode) {
                   const { jsPDF } = window.jspdf;
-                  
-                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 210], compress: true });
+                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 240], compress: true });
                   
                   doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
                   doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
@@ -652,10 +653,8 @@
                   doc.setFont("helvetica", "bold"); doc.setFontSize(11);
                   doc.text("TOTAL TUKAR: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
 
-                  
                   y += 8;
-                  let adaTerima = false;
-                  let totalTerimaPDF = 0;
+                  let adaTerima = false; let totalTerimaPDF = 0;
                   
                   doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
                   doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
@@ -702,7 +701,6 @@
                   pdfBase64 = doc.output('datauristring');
               }
 
-              
               btn.innerHTML = 'Mengirim Data...';
 
               const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
@@ -720,7 +718,6 @@
                       btn.classList.remove('btn-success'); btn.classList.add('btn-primary'); 
                       btn.innerHTML = '<i class="fas fa-check-circle"></i> TERSIMPAN!';
 
-                      
                       Swal.fire({
                           icon: 'success',
                           title: 'Berhasil!',
@@ -732,12 +729,9 @@
                           reverseButtons: true
                       }).then((result) => {
                           if (result.isConfirmed) {
-                              
                               window.location.href = waLink;
-                              
                               setTimeout(() => { location.reload(); }, 2000);
                           } else {
-                              
                               location.reload();
                           }
                       });
@@ -751,7 +745,7 @@
               showMsg('error', 'Jaringan Error', 'Koneksi bermasalah atau file terlalu besar.'); 
               btn.disabled = false; btn.innerHTML = 'ULANGI'; 
           }
-      }, 100); 
+      }, 100);
     }
   </script>
 </body>
