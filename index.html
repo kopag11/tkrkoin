@@ -135,13 +135,30 @@
                         </select>
                     </div>
 
-                    <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM</span>
+                    <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM (TUKAR)</span>
                     <div id="denomContainer" class="mb-4"></div>
                     <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
                         <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
                         <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
                     </div>
                     
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-4 border border-warning">
+                        <span class="d-block small fw-bold text-dark mb-2 ps-1"><i class="fas fa-money-bill-wave me-1"></i> UANG DITERIMA (DARI TOKO)</span>
+                        
+                        <div class="denom-row mb-2">
+                            <div class="denom-badge bg-secondary">50.000</div>
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="Qty">
+                            <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
+                        </div>
+
+                        <div class="denom-row mb-0">
+                            <div class="denom-badge bg-secondary">100.000</div>
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="Qty">
+                            <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
+                        </div>
+                        
+                        <div class="mt-2 text-end fw-bold text-dark" style="font-size:14px;">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
+                    </div>
                     <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
                     
                     <canvas id="signature-pad"></canvas>
@@ -341,7 +358,7 @@
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
 
-        document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menyusun jalur kiri (hemat nyebrang)...</div>';
+        document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menghitung jarak terdekat...</div>';
         
         try {
             const res = await callAPI('getMaps');
@@ -371,14 +388,12 @@
                         roughRoute.push(nextStore);
                         currentPos = {lat: nextStore.lat, long: nextStore.long};
                         unvisited.splice(nearestIdx, 1);
-                    } else {
-                        break;
-                    }
+                    } else { break; }
                 }
                 
                 
                 let optimizedStores = applyTwoOpt(roughRoute, office);
-                
+
                 
                 optimizedStores = ensureCounterClockwise(optimizedStores, office);
 
@@ -394,10 +409,7 @@
                 let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.3;
                 
                 routeData = {
-                    office: office, 
-                    stores: optimizedStores, 
-                    returnDist: distToOffice.toFixed(1),
-                    skipped: skippedCount 
+                    office: office, stores: optimizedStores, returnDist: distToOffice.toFixed(1), skipped: skippedCount 
                 };
 
                 renderRouteList(routeData); 
@@ -411,27 +423,12 @@
         }
     }
 
-    function ensureCounterClockwise(route, officeCoord) {
-        if (route.length < 3) return route; 
-        let sum = 0;
-        let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
-
-        for (let i = 0; i < path.length - 1; i++) {
-            let cur = path[i];
-            let next = path[i+1];
-            sum += (next.long - cur.long) * (next.lat + cur.lat);
-        }
-        
-        if (sum > 0) return route.reverse();
-        return route;
-    }
-
     function applyTwoOpt(route, officeCoord) {
         let office = {lat: officeCoord[0], long: officeCoord[1]};
         let bestRoute = [...route];
         let improved = true;
         let count = 0;
-
+        
         while(improved && count < 100) {
             improved = false;
             count++;
@@ -452,30 +449,36 @@
         let B = route[i];
         let C = route[k];
         let D = (k === route.length - 1) ? office : route[k+1];
-
         let d1 = calcDist(A.lat, A.long, B.lat, B.long);
         let d2 = calcDist(C.lat, C.long, D.lat, D.long);
-        let currentDist = d1 + d2;
-
         let d3 = calcDist(A.lat, A.long, C.lat, C.long);
         let d4 = calcDist(B.lat, B.long, D.lat, D.long);
-        let newDist = d3 + d4;
-
-        return newDist < currentDist;
+        return (d3 + d4) < (d1 + d2);
     }
 
     function reverseSegment(route, i, k) {
         let newRoute = [...route];
-        let left = i;
-        let right = k;
+        let left = i; let right = k;
         while (left < right) {
             let temp = newRoute[left];
             newRoute[left] = newRoute[right];
             newRoute[right] = temp;
-            left++;
-            right--;
+            left++; right--;
         }
         return newRoute;
+    }
+
+    function ensureCounterClockwise(route, officeCoord) {
+        if (route.length < 3) return route;
+        let sum = 0;
+        let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
+        for (let i = 0; i < path.length - 1; i++) {
+            let cur = path[i];
+            let next = path[i+1];
+            sum += (next.long - cur.long) * (next.lat + cur.lat);
+        }
+        if (sum > 0) return route.reverse();
+        return route;
     }
 
     function renderRouteList(data) {
@@ -484,7 +487,7 @@
         let html = '';
         
         if (data.skipped > 0) {
-            html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error (Cek Koordinat/Kode)</div>`;
+            html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error</div>`;
         }
 
         let totalKm = 0;
@@ -590,6 +593,7 @@
         Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false });
     }
 
+    
     function hitungTotal() {
         let t = 0; 
         document.querySelectorAll('.d-input').forEach(el => {
@@ -600,7 +604,24 @@
         });
         document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
     }
-    document.addEventListener('input', function(e) { if(e.target.classList.contains('d-input')) { hitungTotal(); } });
+
+    
+    function hitungTerima() {
+        let t = 0; 
+        document.querySelectorAll('.t-input').forEach(el => {
+            let val = parseFloat(el.value) || 0;
+            let denom = parseFloat(el.getAttribute('data-v'));
+            el.parentElement.querySelector('.subtotal-t').innerText = (val * denom).toLocaleString('id-ID');
+            t += (val * denom);
+        });
+        document.getElementById('totalTerimaDisplay').innerText = t.toLocaleString('id-ID');
+    }
+
+    
+    document.addEventListener('input', function(e) { 
+        if(e.target.classList.contains('d-input')) { hitungTotal(); } 
+        if(e.target.classList.contains('t-input')) { hitungTerima(); } 
+    });
 
     async function loadTemplatesFromSheet() {
         const select = document.getElementById('templateSelect');
@@ -706,6 +727,7 @@
         totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
         keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
         k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
+        tTerima50: 0, tTerima100: 0,
         jabatan: document.getElementById('jabatan').value,
         namaTim: document.getElementById('namaTim').value,
         petugas: document.getElementById('petugasNama').value
@@ -719,7 +741,10 @@
 
       if (isTukarMode) {
           const { jsPDF } = window.jspdf;
-          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a6', compress: true });
+          
+          
+          const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 210], compress: true });
+          
           doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
           doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
           doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
@@ -741,7 +766,7 @@
           y += 2; doc.line(5, y, 100, y); y += 5;
 
           doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
-          doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
+          doc.text("Pecahan (Tukar)", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
 
           document.querySelectorAll('.d-input').forEach(el => {
             let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
@@ -755,19 +780,75 @@
           });
           y += 2; doc.line(5, y, 100, y); y += 6;
           doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-          doc.text("TOTAL: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
+          doc.text("TOTAL TUKAR: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
 
-          y += 10; doc.setFontSize(8); doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
+          
+          y += 8;
+          let adaTerima = false;
+          let totalTerimaPDF = 0;
+          
+          doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
+          doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
+          y += 5;
+          doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(0,0,0);
+
+          document.querySelectorAll('.t-input').forEach(el => {
+            let qty = parseInt(el.value) || 0; 
+            let d = parseInt(el.getAttribute('data-v'));
+            if(qty > 0) {
+                adaTerima = true;
+                let sub = qty * d;
+                totalTerimaPDF += sub;
+                doc.text(d.toLocaleString(), 7, y); 
+                doc.text(qty.toString(), 40, y, {align: 'center'}); 
+                doc.text(sub.toLocaleString(), 98, y, {align:'right'}); 
+                y += 4;
+                if(d==50000) dataSave.tTerima50 = qty;
+                if(d==100000) dataSave.tTerima100 = qty;
+            }
+          });
+
+          if(!adaTerima) {
+              doc.setFont("helvetica", "italic"); 
+              doc.text("- Tidak ada uang tunai diterima -", 52.5, y, {align:'center'});
+              y += 4;
+          } else {
+              doc.setLineWidth(0.1); doc.line(40, y, 100, y); y+=4;
+              doc.setFont("helvetica", "bold");
+              doc.text("Total Terima: Rp " + totalTerimaPDF.toLocaleString('id-ID'), 98, y, {align:'right'});
+              y += 4;
+          }
+
+          
+          y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
+          doc.text("Petugas", 20, y, {align:'center'}); 
+          doc.text("Tim toko", 85, y, {align:'center'});
           
           if(!signaturePad.isEmpty()) {
               const sigImg = signaturePad.toDataURL('image/png');
               doc.addImage(sigImg, 'PNG', 70, y+2, 30, 15);
           }
+
+          const session = JSON.parse(localStorage.getItem('session'));
+          if (session && session.ttdOtomatis) {
+              doc.addImage(session.ttdOtomatis, 'PNG', 5, y+2, 30, 15);
+          } else {
+              doc.setFontSize(7);
+              doc.text("(TTD Digital)", 20, y+10, {align:'center', color: '#aaaaaa'});
+              doc.setFontSize(8); doc.setTextColor(0,0,0);
+          }
           
-          y += 20; doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+          y += 20; 
+          doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); 
+          doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+          
+          
+          y += 10;
+          doc.setFontSize(7); doc.setTextColor(150,150,150);
+          doc.text("*** Simpan struk ini sebagai bukti sah ***", 52.5, y, {align:'center'});
 
           const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
-          filename = `struk-transaksi-${kodeToko}-${dateFile}.pdf`;
+          filename = `struk-penukaran-${kodeToko}-${dateFile}.pdf`;
           pdfBase64 = doc.output('datauristring');
       }
 
