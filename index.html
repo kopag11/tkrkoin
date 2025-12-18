@@ -638,7 +638,7 @@
 
               if (isTukarMode) {
                   const { jsPDF } = window.jspdf;
-                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 240], compress: true });
+                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 200], compress: true });
                   
                   doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
                   doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
