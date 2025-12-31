@@ -246,9 +246,9 @@
     let templatesData = []; 
     let routeData = null; 
 
-    // --- INISIALISASI ---
+    
     window.onload = async () => {
-      // Load Nopol
+      
       try {
         const res = await fetch(API_URL + "?action=getNopolList");
         const list = await res.json();
@@ -285,7 +285,7 @@
         newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
     }
 
-    // --- LOGIN ---
+    
     async function doLogin(btn) {
       const nopol = document.getElementById('loginNopol').value;
       if(!nopol) return Swal.fire('Pilih Mobil!', '', 'warning');
@@ -311,7 +311,7 @@
         initSignaturePad();
     }
 
-    // --- HITUNG OTOMATIS ---
+    
     document.addEventListener('input', function(e) { 
         if(e.target.classList.contains('d-input')) { hitungTotal(); } 
         if(e.target.classList.contains('t-input')) { hitungTerima(); } 
@@ -339,7 +339,7 @@
         document.getElementById('totalTerimaDisplay').innerText = t.toLocaleString('id-ID');
     }
 
-    // --- PROSES SIMPAN ---
+    
     async function process(btn) {
       if(signaturePad.isEmpty()) return showMsg('warning','TTD Kosong','Wajib tanda tangan!');
       const user = JSON.parse(localStorage.getItem('session'));
@@ -384,7 +384,7 @@
       }, 100);
     }
 
-    // --- ALGORITMA RUTE LENGKAP (NN -> 2-OPT -> CCW) ---
+    
     async function initRouteList() {
         const user = JSON.parse(localStorage.getItem('session'));
         document.getElementById('routeContainer').innerHTML = 'Menyusun rute...';
@@ -393,7 +393,7 @@
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores;
-                // [Logika NN & 2-OPT disini sama seperti index koin.html]
+                
                 renderRouteList({office: office, stores: stores, returnDist: "1.5"}); 
             }
         } catch(e) { document.getElementById('routeContainer').innerHTML = 'Gagal memuat rute'; }
