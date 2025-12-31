@@ -18,7 +18,7 @@
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; background: #f8fafc; transition: 0.3s; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; }
-    .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; min-width: 80px; text-align: center; font-size: 13px; }
+    .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; min-width: 80px; text-align: center; }
     canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fff; touch-action: none; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; display: flex; justify-content: space-around; border-top: 1px solid #eee; z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; }
@@ -29,28 +29,20 @@
 
   <div class="app-card">
     <div id="loginPage" class="p-4 flex-grow-1 d-flex flex-column justify-content-center">
-      <div class="text-center mb-4">
-        <i class="fas fa-truck-loading text-primary mb-3" style="font-size: 60px;"></i>
-        <h2 class="fw-bold">Login Koin</h2>
-      </div>
+      <div class="text-center mb-4"><i class="fas fa-truck-loading text-primary mb-3" style="font-size: 60px;"></i><h2 class="fw-bold">Login Koin</h2></div>
       <div class="mb-3"><input type="tel" id="loginNik" class="input-modern" placeholder="NIK Petugas"></div>
       <div class="mb-3"><input type="password" id="loginPass" class="input-modern" placeholder="Password"></div>
       <div class="mb-4">
         <label class="small fw-bold text-muted mb-1">Pilih Nomor Polisi (Data Maps):</label>
-        <select id="loginNopol" class="input-modern form-select">
-          <option value="">-- Memuat No Polisi... --</option>
-        </select>
+        <select id="loginNopol" class="input-modern form-select"><option value="">-- Memuat Nopol... --</option></select>
       </div>
-      <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow" onclick="doLogin(this)">MASUK KE SISTEM</button>
+      <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow" onclick="doLogin(this)">MASUK SISTEM</button>
     </div>
 
     <div id="mainApp" class="hidden flex-grow-1 d-flex flex-column">
       <div class="p-3 bg-white border-bottom shadow-sm">
         <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="m-0 fw-bold text-primary" id="badgeNama">-</h6>
-            <span class="badge bg-secondary" id="badgeKendaraan">-</span>
-          </div>
+          <div><h6 class="m-0 fw-bold text-primary" id="badgeNama">-</h6><span class="badge bg-secondary" id="badgeKendaraan">-</span></div>
           <button class="btn btn-sm btn-outline-danger" onclick="logout()"><i class="fas fa-power-off"></i></button>
         </div>
       </div>
@@ -63,20 +55,18 @@
         
         <div id="transactionArea" class="hidden">
           <input type="text" id="namaToko" class="input-modern mb-3" readonly placeholder="Nama Toko">
-          
-          <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM (TUKAR)</span>
           <div id="denomContainer" class="mb-4"></div>
           
           <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-3 border border-warning">
-            <span class="d-block small fw-bold text-dark mb-2"><i class="fas fa-money-bill-wave me-1"></i> UANG TERIMA TOKO</span>
+            <span class="d-block small fw-bold text-dark mb-2">UANG TERIMA TOKO</span>
             <div class="denom-row">
               <div class="denom-badge bg-secondary">50.000</div>
-              <input type="number" class="input-modern t-input" style="width:100px" data-v="50000" placeholder="Qty" oninput="hitungTerima()">
+              <input type="number" class="input-modern t-input" data-v="50000" placeholder="Qty" oninput="hitungTerima()">
               <div class="denom-total small fw-bold">Rp <span class="subtotal-t">0</span></div>
             </div>
             <div class="denom-row">
               <div class="denom-badge bg-secondary">100.000</div>
-              <input type="number" class="input-modern t-input" style="width:100px" data-v="100000" placeholder="Qty" oninput="hitungTerima()">
+              <input type="number" class="input-modern t-input" data-v="100000" placeholder="Qty" oninput="hitungTerima()">
               <div class="denom-total small fw-bold">Rp <span class="subtotal-t">0</span></div>
             </div>
             <div class="text-end small fw-bold mt-2">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
@@ -90,14 +80,13 @@
           <label class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan Tim Toko</label>
           <canvas id="signature-pad" class="mb-2"></canvas>
           <button class="btn btn-light btn-sm w-100 mb-4" onclick="signaturePad.clear()">Hapus TTD</button>
-
-          <button class="btn btn-success w-100 py-3 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)">PROSES & KIRIM STRUK</button>
+          <button class="btn btn-success w-100 py-3 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)">SIMPAN & KIRIM WA</button>
         </div>
       </div>
 
       <div id="dashPage" class="p-4 hidden overflow-auto flex-grow-1" style="padding-bottom: 100px;">
-        <h5 class="fw-bold mb-3 text-center">Dashboard Area <span id="dashNopol" class="text-primary"></span></h5>
-        <div id="dashContainer">Memuat data Dashboard...</div>
+        <h5 class="fw-bold mb-3 text-center">Dashboard <span id="dashNopol" class="text-primary"></span></h5>
+        <div id="dashContainer">Memuat Dashboard...</div>
       </div>
 
       <div id="mapsPage" class="p-4 hidden overflow-auto flex-grow-1" style="padding-bottom: 100px;">
@@ -116,15 +105,14 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     let signaturePad = null;
-    let isTukarMode = true;
 
     window.onload = async () => {
       try {
         const res = await fetch(API_URL + "?action=getNopolList");
-        const nopol = await res.json();
+        const list = await res.json();
         const sel = document.getElementById('loginNopol');
         sel.innerHTML = '<option value="">-- Pilih Nomor Polisi --</option>';
-        nopol.forEach(n => { sel.innerHTML += `<option value="${n}">${n}</option>`; });
+        list.forEach(n => { if(n) sel.innerHTML += `<option value="${n}">${n}</option>`; });
       } catch (e) { console.error("Gagal muat Nopol"); }
 
       const sess = localStorage.getItem('session');
@@ -134,17 +122,13 @@
         document.getElementById('mainApp').classList.remove('hidden');
         document.getElementById('badgeNama').innerText = u.nama;
         document.getElementById('badgeKendaraan').innerText = u.nopol;
-        initPad();
-        renderDenoms();
+        initPad(); renderDenoms();
       }
     };
 
     function initPad() {
       const canvas = document.getElementById('signature-pad');
-      signaturePad = new SignaturePad(canvas, { 
-        backgroundColor: 'rgb(255, 255, 255)',
-        minWidth: 2, maxWidth: 4 
-      });
+      signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)', minWidth: 2, maxWidth: 4 });
     }
 
     function renderDenoms() {
@@ -152,16 +136,14 @@
       const cont = document.getElementById('denomContainer');
       cont.innerHTML = "";
       denoms.forEach(d => {
-        cont.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input" style="width:100px" data-v="${d}" placeholder="Qty" oninput="hitungTotal()"></div>`;
+        cont.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input" style="width:100px" data-v="${d}" oninput="hitungTotal()"></div>`;
       });
     }
 
     function hitungTotal() {
-      let total = 0;
-      document.querySelectorAll('.d-input').forEach(el => {
-        total += (parseInt(el.value) || 0) * parseInt(el.dataset.v);
-      });
-      document.getElementById('totalDisplay').innerText = total.toLocaleString('id-ID');
+      let t = 0;
+      document.querySelectorAll('.d-input').forEach(el => { t += (parseInt(el.value) || 0) * parseInt(el.dataset.v); });
+      document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
     }
 
     function hitungTerima() {
@@ -178,14 +160,12 @@
       const kode = document.getElementById('kodeToko').value.toUpperCase();
       if(!kode) return;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-      try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'search', kode: kode })});
-        const data = await res.json();
-        if(data.found) {
-          document.getElementById('namaToko').value = data.nama;
-          document.getElementById('transactionArea').classList.remove('hidden');
-        } else { Swal.fire('Toko tidak ditemukan', '', 'warning'); }
-      } catch (e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
+      const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({action:'search', kode:kode})});
+      const data = await res.json();
+      if(data.found) {
+        document.getElementById('namaToko').value = data.nama;
+        document.getElementById('transactionArea').classList.remove('hidden');
+      } else { Swal.fire('Toko tidak ditemukan', '', 'warning'); }
       btn.innerHTML = '<i class="fas fa-search"></i>';
     }
 
@@ -193,96 +173,70 @@
       const nopol = document.getElementById('loginNopol').value;
       if(!nopol) return Swal.fire('Pilih Mobil!', '', 'warning');
       btn.disabled = true;
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nik: document.getElementById('loginNik').value, pass: document.getElementById('loginPass').value })});
+      const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({action:'login', nik:document.getElementById('loginNik').value, pass:document.getElementById('loginPass').value})});
       const data = await res.json();
       if(data.status === 'success') {
-        data.nopol = nopol;
-        localStorage.setItem('session', JSON.stringify(data));
-        location.reload();
-      } else { Swal.fire('Login Gagal', '', 'error'); btn.disabled = false; }
+        data.nopol = nopol; localStorage.setItem('session', JSON.stringify(data)); location.reload();
+      } else { Swal.fire('Gagal Login', '', 'error'); btn.disabled = false; }
     }
 
     async function process(btn) {
-      if(signaturePad.isEmpty()) return Swal.fire('Tanda tangan wajib!', '', 'warning');
+      if(signaturePad.isEmpty()) return Swal.fire('TTD wajib!', '', 'warning');
       const user = JSON.parse(localStorage.getItem('session'));
       btn.innerHTML = 'Memproses...'; btn.disabled = true;
 
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ format: [105, 240], compress: true });
       doc.setFontSize(14); doc.text("STRUK PENUKARAN KOIN", 52.5, 15, {align: 'center'});
-      doc.setFontSize(10);
-      doc.text("NOPOL: " + user.nopol, 10, 25);
-      doc.text("TOKO : " + document.getElementById('kodeToko').value, 10, 30);
-      doc.text("PETUGAS: " + user.nama, 10, 35);
+      doc.setFontSize(10); doc.text("NOPOL: " + user.nopol, 10, 25);
+      doc.text("TOTAL: Rp " + document.getElementById('totalDisplay').innerText, 10, 35);
       
-      const sigImg = signaturePad.toDataURL('image/jpeg', 0.15); 
+      const sigImg = signaturePad.toDataURL('image/jpeg', 0.15);
       doc.addImage(sigImg, 'JPEG', 60, 180, 35, 20);
 
       const payload = {
         action: 'save',
-        data: {
-            nopol: user.nopol,
-            petugas: user.nama,
-            kodeToko: document.getElementById('kodeToko').value,
-            totalUang: document.getElementById('totalDisplay').innerText.replace(/\D/g,''),
-            isTukar: true
-        },
+        data: { nopol: user.nopol, petugas: user.nama, kodeToko: document.getElementById('kodeToko').value, totalUang: document.getElementById('totalDisplay').innerText.replace(/\D/g,''), isTukar: true },
         image: sigImg,
         filename: "struk-" + document.getElementById('kodeToko').value + ".pdf"
       };
 
-      try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload)});
-        const out = await res.json();
-        if(out.status === 'success') {
-          Swal.fire('Berhasil!', 'Data tersimpan. Membuka WhatsApp...', 'success').then(() => {
-            window.location.href = `https://wa.me/?text=Bukti Tukar Koin: ${out.fileUrl}`;
-            setTimeout(() => location.reload(), 2000);
-          });
-        }
-      } catch (e) { Swal.fire('Error', 'Gagal kirim data', 'error'); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+      const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(payload)});
+      const out = await res.json();
+      if(out.status === 'success') {
+        Swal.fire('Berhasil!', 'Membuka WhatsApp...', 'success').then(() => {
+          window.location.href = `https://wa.me/?text=Struk: ${out.fileUrl}`;
+          setTimeout(() => location.reload(), 2000);
+        });
+      }
     }
 
-    async function switchPage(p) {
+    function switchPage(p) {
       const user = JSON.parse(localStorage.getItem('session'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.getElementById('formPage').classList.add('hidden');
       document.getElementById('dashPage').classList.add('hidden');
       document.getElementById('mapsPage').classList.add('hidden');
 
-      if(p === 'home') {
-        document.getElementById('formPage').classList.remove('hidden');
-        document.getElementById('navHome').classList.add('active');
-      } else if(p === 'dash') {
-        document.getElementById('dashPage').classList.remove('hidden');
-        document.getElementById('navDash').classList.add('active');
-        loadDashboard(user.nopol);
-      } else if(p === 'maps') {
-        document.getElementById('mapsPage').classList.remove('hidden');
-        document.getElementById('navMaps').classList.add('active');
-        loadRoute(user.nopol);
-      }
+      if(p === 'home') { document.getElementById('formPage').classList.remove('hidden'); document.getElementById('navHome').classList.add('active'); }
+      else if(p === 'dash') { document.getElementById('dashPage').classList.remove('hidden'); document.getElementById('navDash').classList.add('active'); loadDashboard(user.nopol); }
+      else if(p === 'maps') { document.getElementById('mapsPage').classList.remove('hidden'); document.getElementById('navMaps').classList.add('active'); loadRoute(user.nopol); }
     }
 
     async function loadDashboard(nopol) {
-      const cont = document.getElementById('dashContainer');
-      cont.innerHTML = "Memuat Dashboard...";
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboard', nopol: nopol })});
+      const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({action:'getDashboard', nopol:nopol})});
       const json = await res.json();
-      let html = `<table class="table table-sm table-bordered">`;
+      let html = `<table class="table table-bordered small">`;
       json.data.forEach(row => { html += `<tr>${row.map(c => `<td>${c}</td>`).join('')}</tr>`; });
-      cont.innerHTML = html + `</table>`;
+      document.getElementById('dashContainer').innerHTML = html + `</table>`;
     }
 
     async function loadRoute(nopol) {
-      const cont = document.getElementById('routeList');
-      cont.innerHTML = "Memuat Rute...";
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getMaps', nopol: nopol })});
+      const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({action:'getMaps', nopol:nopol})});
       const json = await res.json();
-      cont.innerHTML = "";
-      json.stores.forEach((tk, i) => {
-        cont.innerHTML += `<div class="list-group-item"><b>${i+1}.</b> ${tk.kode} - ${tk.nama}</div>`;
-      });
+      let html = "";
+      json.stores.forEach((tk, i) => { html += `<div class="list-group-item small"><b>${i+1}.</b> ${tk.kode} - ${tk.nama}</div>`; });
+      document.getElementById('routeList').innerHTML = html;
     }
 
     function logout() { localStorage.clear(); location.reload(); }
