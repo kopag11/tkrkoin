@@ -2,235 +2,803 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Tukar Koin Digital</title>
+  <title>Tukar Koin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
   <style>
-    :root { --primary: #4f46e5; }
-    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; min-height: 100dvh; display: flex; justify-content: center; }
-    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100dvh; display: flex; flex-direction: column; position: relative; }
+    :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+    
+    .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; min-height: 100dvh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
+    
     .hidden { display: none !important; }
-    .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; background: #f8fafc; transition: 0.3s; }
-    .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; }
-    .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; min-width: 80px; text-align: center; }
-    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fff; touch-action: none; }
-    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; display: flex; justify-content: space-around; border-top: 1px solid #eee; z-index: 1000; border-top-left-radius: 20px; border-top-right-radius: 20px; }
-    .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; }
+    
+    .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
+    .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+    .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
+    .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
+    .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
+
+    .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
+    .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
+    
+    canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
+
+    .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
+    .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
+    .dash-val-md { font-size: 20px; font-weight: 600; color: #334155; }
+    .progress-stacked { height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden; margin-top: 10px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #667eea); width: 0%; transition: width 0.8s ease-in-out; }
+    .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
+    .rincian-table tr { background: #f8fafc; }
+    .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
+    .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
+
+    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
+    .route-card:active { transform: scale(0.98); }
+    .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
+    .route-info small { color: #64748b; font-size: 11px; display: block; margin-top: 4px; }
+    
+    .route-meta-badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .meta-travel { background: #eff6ff; color: #2563eb; }
+    
+    .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    
+    .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    
+    .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+    .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
+    .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
-    .route-done { background-color: #dcfce7 !important; border-left: 5px solid #198754 !important; }
+    .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
   </style>
 </head>
 <body>
 
   <div class="app-card">
-    <div id="loginPage" class="p-4 flex-grow-1 d-flex flex-column justify-content-center hidden">
-      <div class="text-center mb-4"><i class="fas fa-coins text-primary mb-3" style="font-size: 60px;"></i><h2 class="fw-bold">Login Koin</h2></div>
-      <div class="mb-3"><input type="tel" id="loginNik" class="input-modern" placeholder="NIK Petugas"></div>
-      <div class="mb-3"><input type="password" id="loginPass" class="input-modern" placeholder="Password"></div>
-      <div class="mb-4">
-        <label class="small fw-bold text-muted mb-1">Pilih Nomor Polisi:</label>
-        <select id="loginNopol" class="input-modern form-select"><option value="">-- Memuat Nopol... --</option></select>
+    
+    <div id="loginPage" class="login-container">
+      <div class="text-center pb-4">
+        <i class="fas fa-coins coin-logo"></i>
+        <h2 class="fw-bold mt-3 mb-1">Tukar Koin</h2>
+        <p class="text-muted">Sistem Operasional Digital</p>
       </div>
-      <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow" onclick="doLogin(this)">MASUK</button>
+      <div>
+        <div class="mb-3"><input type="tel" id="loginNik" class="input-modern" placeholder="NIK (Angka)" maxlength="10" inputmode="numeric"></div>
+        <div class="mb-4"><input type="password" id="loginPass" class="input-modern" placeholder="Password (Angka)" maxlength="6" inputmode="numeric" pattern="[0-9]*"></div>
+        
+        <div class="mb-4">
+           <label class="small fw-bold text-muted mb-1">Pilih Nomor Polisi:</label>
+           <select id="loginNopol" class="input-modern form-select">
+              <option value="">-- Memuat Nopol... --</option>
+           </select>
+        </div>
+
+        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow-lg" onclick="doLogin(this)">MASUK APLIKASI</button>
+      </div>
     </div>
 
-    <div id="mainApp" class="hidden flex-grow-1 d-flex flex-column">
-      <div class="p-3 bg-white border-bottom shadow-sm d-flex justify-content-between align-items-center">
-        <div><h6 class="m-0 fw-bold text-primary" id="badgeNama">-</h6><span class="badge bg-secondary" id="badgeKendaraan">-</span></div>
-        <button class="btn btn-sm btn-outline-danger" onclick="logout()"><i class="fas fa-power-off"></i></button>
-      </div>
-
-      <div id="formPage" class="p-4 overflow-auto flex-grow-1" style="padding-bottom: 100px;">
-        <div class="input-group mb-4">
-          <input type="text" class="input-modern" id="kodeToko" placeholder="Cari Kode Toko..." oninput="this.value = this.value.toUpperCase()">
-          <button class="btn btn-primary" onclick="cariToko(this)"><i class="fas fa-search"></i></button>
+    <div id="mainApp" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-white border-bottom shadow-sm z-3">
+            <div>
+               <h6 class="m-0 fw-bold text-primary" id="pageTitle" style="font-size: 18px;">Transaksi Baru</h6>
+               <div class="d-flex align-items-center mt-1">
+                   <span class="badge bg-primary rounded-pill me-2" id="badgeNama">-</span>
+                   <small class="text-muted" id="badgeKendaraan"></small>
+               </div>
+               <input type="hidden" id="petugasNama"><input type="hidden" id="kendaraan">
+            </div>
+            <button class="btn btn-light text-danger rounded-circle" onclick="logout()"><i class="fas fa-power-off"></i></button>
         </div>
-        <div id="transactionArea" class="hidden">
-          <div id="denomContainer" class="mb-4"></div>
-          
-          <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-3 border border-warning">
-            <span class="d-block small fw-bold text-dark mb-2">UANG TERIMA TOKO</span>
-            <div class="denom-row"><div class="denom-badge bg-secondary">50.000</div><input type="number" class="input-modern t-input" data-v="50000" oninput="hitungTerima()"></div>
-            <div class="denom-row"><div class="denom-badge bg-secondary">100.000</div><input type="number" class="input-modern t-input" data-v="100000" oninput="hitungTerima()"></div>
-            <div class="text-end small fw-bold">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
-          </div>
 
-          <div class="p-3 bg-primary text-white rounded-4 text-center mb-4 shadow">
-            <small class="opacity-75">TOTAL TUKAR KOIN</small>
-            <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
-          </div>
+        <div id="formPage" class="page-scroll">
+          <div class="p-4">
+            <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA TOKO</span>
+            <div class="input-group mb-2">
+              <input type="text" class="input-modern" id="kodeToko" placeholder="Cari Kode..." style="border-top-right-radius:0; border-bottom-right-radius:0; text-transform:uppercase;" oninput="this.value = this.value.toUpperCase()">
+              <button class="btn btn-primary" onclick="cariToko(this)" style="border-top-right-radius:12px; border-bottom-right-radius:12px; padding: 0 20px;"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="row g-2 mb-4">
+               <div class="col-12"><input type="text" class="input-modern input-readonly" id="namaToko" placeholder="Nama Toko" readonly></div>
+               <div class="col-12"><textarea class="input-modern input-readonly" id="alamatToko" placeholder="Alamat" rows="2" readonly></textarea></div>
+            </div>
 
-          <canvas id="signature-pad" class="mb-2"></canvas>
-          <button class="btn btn-light btn-sm w-100 mb-4" onclick="signaturePad.clear()">Hapus TTD</button>
-          <button class="btn btn-success w-100 py-3 rounded-4 fw-bold" id="btnSubmit" onclick="process(this)">PROSES & SIMPAN</button>
+            <div id="transactionArea" class="hidden">
+                <div class="alert alert-info text-center py-2 mb-3 fw-bold" id="statusLabel">Sedang Transaksi</div>
+                <span class="d-block small fw-bold text-muted mb-2 ps-1">DATA PENYETOR</span>
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <select class="input-modern form-select" id="jabatan">
+                            <option value="CIF">CIF</option><option value="SSL">SSL</option><option value="SJL">SJL</option><option value="SCG">SCG</option><option value="SCB">SCB</option>
+                        </select>
+                    </div>
+                    <div class="col-6"><input type="text" class="input-modern" id="namaTim" placeholder="Nama Tim"></div>
+                </div>
+
+                <div id="yesSection">
+                    <div class="col-12 mb-4">
+                        <span class="d-block small fw-bold text-muted mb-1">Nomor WA</span>
+                        <div class="input-group">
+                            <span class="input-group-text bg-success text-white border-0"><i class="fab fa-whatsapp"></i></span>
+                            <input type="tel" class="input-modern" id="noWa" placeholder="08xxx" style="border-top-left-radius:0; border-bottom-left-radius:0;">
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-4 mb-4 border border-secondary border-opacity-25">
+                        <span class="d-block small fw-bold text-primary mb-2 ps-1"><i class="fas fa-magic me-1"></i> PILIH PAKET CEPAT</span>
+                        <select class="input-modern form-select border-primary" id="templateSelect" onchange="applyTemplate()">
+                            <option value="">Loading Templates...</option>
+                        </select>
+                    </div>
+
+                    <span class="d-block small fw-bold text-muted mb-2 ps-1">RINCIAN DENOM (TUKAR)</span>
+                    <div id="denomContainer" class="mb-4"></div>
+                    
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-4 border border-warning">
+                        <span class="d-block small fw-bold text-dark mb-2 ps-1"><i class="fas fa-money-bill-wave me-1"></i> UANG DITERIMA (DARI TOKO)</span>
+                        
+                        <div class="d-flex justify-content-between px-2 mb-1 text-muted opacity-75" style="font-size:11px; font-weight:700;">
+                            <div style="width:70px; text-align:center;">DENOM</div>
+                            <div style="width:80px; text-align:center;">QTY</div>
+                            <div style="flex:1; text-align:right;">NOMINAL</div>
+                        </div>
+
+                        <div class="denom-row mb-2">
+                            <div class="denom-badge bg-secondary">50.000</div>
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="0">
+                            <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
+                        </div>
+
+                        <div class="denom-row mb-0">
+                            <div class="denom-badge bg-secondary">100.000</div>
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="0">
+                            <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
+                        </div>
+                        
+                        <div class="mt-2 text-end fw-bold text-dark" style="font-size:14px;">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
+                    </div>
+
+                    <div class="p-3 bg-primary text-white rounded-4 text-center shadow mb-4">
+                        <small class="opacity-75 d-block mb-1">TOTAL PENUKARAN</small>
+                        <h2 class="m-0 fw-bold">Rp <span id="totalDisplay">0</span></h2>
+                    </div>
+
+                    <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
+                    
+                    <canvas id="signature-pad"></canvas>
+                    
+                    <button class="btn btn-light btn-sm w-100 text-danger fw-bold border mt-2" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
+                </div>
+
+                <div id="noSection" class="hidden">
+                    <div class="mb-3">
+                        <span class="d-block small fw-bold text-muted mb-1">Keterangan / Alasan Tidak Tukar</span>
+                        <textarea class="input-modern" id="keterangan" rows="4" placeholder="Contoh: Toko Tutup / Stok Kosong / Menolak Tukar."></textarea>
+                    </div>
+                </div>
+
+                <button class="btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg" id="btnSubmit" onclick="process(this)" style="font-size: 16px;">
+                    <i class="fas fa-paper-plane me-2"></i> PROSES TRANSAKSI
+                </button>
+            </div>
+          </div>
         </div>
-      </div>
+        
+        <div id="dashPage" class="page-scroll hidden">
+            <div class="p-4">
+                <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
+                    <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
+                    <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="dash-val-lg text-white" style="font-size: 32px;" id="dModal">Rp 0</div>
+                    </div>
+                </div>
+                <div class="dash-section">
+                    <div class="row mb-4">
+                        <div class="col-6 border-end"><div class="dash-label">SUDAH DITUKAR</div><div class="dash-val-md text-success" id="dKeluar">Rp 0</div></div>
+                        <div class="col-6 ps-4"><div class="dash-label">SISA UANG</div><div class="dash-val-md text-danger" id="dSisa">Rp 0</div></div>
+                    </div>
+                    <div class="mb-2 d-flex justify-content-between align-items-end"><span class="dash-label m-0">PROGRESS</span><span class="dash-label m-0 fw-bold text-primary fs-5" id="dPersen">0%</span></div>
+                    <div class="progress-stacked"><div class="progress-bar-fill" id="dBar"></div></div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between"><span class="dash-label text-dark">TOTAL TOKO TERLAYANI</span><span class="fw-bold text-dark fs-5" id="dToko">0</span></div>
+                </div>
+                <div class="dash-section p-0 overflow-hidden">
+                    <div class="p-3 border-bottom bg-light"><div class="dash-label m-0">RINCIAN SISA STOK (DENOM)</div></div>
+                    <div class="p-3"><table class="rincian-table" id="tableRincian"></table></div>
+                </div>
+                <div class="text-center mt-3 mb-5">
+                    <button class="btn btn-outline-secondary rounded-pill px-4" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i> Refresh Data</button>
+                </div>
+            </div>
+        </div>
 
-      <div id="dashPage" class="p-4 hidden overflow-auto flex-grow-1" style="padding-bottom: 100px;">
-        <h5 class="fw-bold mb-3 text-center">Dashboard <span id="dashNopol" class="text-primary"></span></h5>
-        <div id="dashContainer"></div>
-      </div>
+        <div id="mapsPage" class="page-scroll hidden">
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold m-0" id="routeTitle">Memuat Data...</h6>
+                    <button class="btn btn-sm btn-light border" onclick="initRouteList()"><i class="fas fa-sync"></i></button>
+                </div>
+                
+                <div id="routeContainer">
+                    <div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Sedang menyusun rute...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      <div id="mapsPage" class="p-4 hidden overflow-auto flex-grow-1" style="padding-bottom: 100px;">
-        <h5 class="fw-bold mb-3 text-center">Rute Harian</h5>
-        <div id="routeList" class="list-group list-group-flush"></div>
-      </div>
+    <div id="bottomNav" class="bottom-nav hidden">
+        <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit"></i> Input</button>
+        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-route"></i> Rute</button>
+    </div>
+  </div>
 
-      <div class="bottom-nav">
-        <button class="nav-item active" id="navHome" onclick="switchPage('home')"><i class="fas fa-edit fs-5"></i><span>Input</span></button>
-        <button class="nav-item" id="navDash" onclick="switchPage('dash')"><i class="fas fa-chart-line fs-5"></i><span>Dash</span></button>
-        <button class="nav-item" id="navMaps" onclick="switchPage('maps')"><i class="fas fa-route fs-5"></i><span>Rute</span></button>
+  <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-body text-center p-4">
+          <i class="fas fa-question-circle text-primary mb-3" style="font-size: 50px;"></i>
+          <h5 class="fw-bold mb-2">Konfirmasi Penukaran</h5>
+          <p class="text-muted">Apakah Toko ini melakukan penukaran koin?</p>
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary py-2 fw-bold" onclick="setMode(true)">YA, Lakukan Penukaran</button>
+            <button class="btn btn-outline-danger py-2 fw-bold" onclick="setMode(false)">TIDAK (Hanya Laporan)</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
-    let signaturePad = null;
 
-    window.onload = () => {
-      const sess = localStorage.getItem('session');
-      if(sess) {
-        const u = JSON.parse(sess);
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('badgeNama').innerText = u.nama;
-        document.getElementById('badgeKendaraan').innerText = u.nopol;
-        initApp();
-      } else {
-        document.getElementById('loginPage').classList.remove('hidden');
-        loadNopolList();
-      }
+    const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
+    
+    const SERVICE_TIME = 1; 
+    const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+    
+    let signaturePad = null;
+    let isTukarMode = true; 
+    let templatesData = []; 
+    let routeData = null; 
+
+    function initSignaturePad() {
+        const canvas = document.getElementById('signature-pad');
+        const newCanvas = canvas.cloneNode(true);
+        canvas.parentNode.replaceChild(newCanvas, canvas);
+        
+        signaturePad = new SignaturePad(newCanvas, { 
+            backgroundColor: 'rgb(255, 255, 255)', 
+            penColor: 'rgb(0, 0, 0)',
+            minWidth: 2, 
+            maxWidth: 4 
+        });
+        
+        newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
+        newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+    }
+
+    function resizeCanvas() {
+        const canvas = document.getElementById('signature-pad');
+        if (canvas && canvas.offsetParent !== null) { 
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            if(signaturePad) signaturePad.clear(); 
+        }
+    }
+
+   
+    function getTinySignature() {
+        const canvas = document.getElementById('signature-pad');
+        if (signaturePad.isEmpty()) return null;
+        return canvas.toDataURL('image/jpeg', 0.25); 
+    }
+
+    window.onload = async () => {
+        
+        try {
+            const res = await fetch(API_URL + "?action=getNopolList");
+            const list = await res.json();
+            const sel = document.getElementById('loginNopol');
+            sel.innerHTML = '<option value="">-- Pilih Nopol --</option>';
+            list.forEach(n => { sel.innerHTML += `<option value="${n}">${n}</option>`; });
+        } catch(e) { console.log('Gagal load nopol', e); }
+
+        const sess = localStorage.getItem('session');
+        if(sess) { const u = JSON.parse(sess); showMainApp(u); }
+
+        const container = document.getElementById('denomContainer');
+        if(container.innerHTML === "") { 
+            denoms.forEach(d => {
+                container.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty"><div class="denom-total">Rp <span class="subtotal">0</span></div></div>`;
+            });
+        }
+        
+        loadTemplatesFromSheet();
+        initSignaturePad(); 
+        window.addEventListener("resize", resizeCanvas);
     };
 
-    async function loadNopolList() {
-      const res = await fetch(API_URL + "?action=getNopolList");
-      const list = await res.json();
-      const sel = document.getElementById('loginNopol');
-      sel.innerHTML = '<option value="">-- Pilih Nopol --</option>';
-      list.forEach(n => { sel.innerHTML += `<option value="${n}">${n}</option>`; });
+    function showMainApp(user) {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden'); 
+        document.getElementById('bottomNav').classList.remove('hidden');
+        document.getElementById('petugasNama').value = user.nama;
+        document.getElementById('badgeNama').innerText = user.nama;
+        
+        document.getElementById('kendaraan').value = user.nopol;
+        document.getElementById('badgeKendaraan').innerText = user.nopol;
     }
 
-    function initApp() {
-      const canvas = document.getElementById('signature-pad');
-      signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)', minWidth: 2.5, maxWidth: 4.5 });
-      const denoms = [100, 200, 500, 1000, 2000, 5000, 10000, 20000];
-      const cont = document.getElementById('denomContainer');
-      cont.innerHTML = "";
-      denoms.forEach(d => {
-        cont.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input" style="width:100px" data-v="${d}" oninput="hitungTotal()"><div class="denom-total small fw-bold flex-grow-1 text-end">Rp <span class="subtotal">0</span></div></div>`;
-      });
-    }
-
+    
     async function doLogin(btn) {
+      const nik = document.getElementById('loginNik').value;
+      const pass = document.getElementById('loginPass').value;
       const nopol = document.getElementById('loginNopol').value;
-      if(!nopol) return Swal.fire('Pilih Nopol!', '', 'warning');
-      btn.disabled = true;
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', nik: document.getElementById('loginNik').value, pass: document.getElementById('loginPass').value })});
-      const data = await res.json();
-      if(data.status === 'success') {
-        data.nopol = nopol;
-        localStorage.setItem('session', JSON.stringify(data));
-        location.reload();
-      } else { Swal.fire('Gagal Login', '', 'error'); btn.disabled = false; }
+      
+      if(!nopol) return Swal.fire('Pilih Nopol Dulu!', '', 'warning');
+
+      btn.innerHTML = 'Loading...'; btn.disabled = true;
+      try {
+        const res = await callAPI('login', { nik, pass });
+        if (res.status === 'success') {
+            res.nopol = nopol; // Inject nopol
+            localStorage.setItem('session', JSON.stringify(res));
+            if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
+            } else { showMainApp(res); }
+        } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
+      } catch (e) { showMsg('error','Error','Masalah Koneksi'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
     }
+
+    function setMode(isYes) {
+        isTukarMode = isYes;
+        bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+        document.getElementById('transactionArea').classList.remove('hidden');
+        
+        if (isYes) {
+            document.getElementById('yesSection').classList.remove('hidden');
+            document.getElementById('noSection').classList.add('hidden');
+            document.getElementById('statusLabel').className = "alert alert-success text-center py-2 mb-3 fw-bold";
+            document.getElementById('statusLabel').innerText = "MODE: PENUKARAN UANG";
+            document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-paper-plane me-2"></i> SIMPAN & KIRIM LINK WA';
+            document.getElementById('btnSubmit').className = "btn btn-success w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg";
+            setTimeout(function() { resizeCanvas(); }, 300);
+        } else {
+            document.getElementById('yesSection').classList.add('hidden');
+            document.getElementById('noSection').classList.remove('hidden');
+            document.getElementById('statusLabel').className = "alert alert-danger text-center py-2 mb-3 fw-bold";
+            document.getElementById('statusLabel').innerText = "MODE: LAPORAN (TIDAK TUKAR)";
+            document.getElementById('btnSubmit').innerHTML = '<i class="fas fa-save me-2"></i> SIMPAN KETERANGAN';
+            document.getElementById('btnSubmit').className = "btn btn-danger w-100 py-3 mt-4 rounded-4 fw-bold shadow-lg";
+        }
+    }
+
+    function switchPage(page) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(page === 'home') {
+            document.getElementById('formPage').classList.remove('hidden');
+            document.getElementById('dashPage').classList.add('hidden');
+            document.getElementById('mapsPage').classList.add('hidden');
+            document.getElementById('navHome').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Transaksi Baru";
+        } else if(page === 'dash') {
+            document.getElementById('formPage').classList.add('hidden');
+            document.getElementById('dashPage').classList.remove('hidden');
+            document.getElementById('mapsPage').classList.add('hidden');
+            document.getElementById('navDash').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Dashboard Harian";
+            loadDashboard();
+        } else if(page === 'maps') {
+            document.getElementById('formPage').classList.add('hidden');
+            document.getElementById('dashPage').classList.add('hidden');
+            document.getElementById('mapsPage').classList.remove('hidden');
+            document.getElementById('navMaps').classList.add('active');
+            document.getElementById('pageTitle').innerText = "Rute Harian";
+            initRouteList();
+        }
+    }
+
+    async function initRouteList() {
+        if(routeData) { renderRouteList(routeData); return; }
+        document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menghitung jarak terdekat...</div>';
+        try {
+            
+            const sess = JSON.parse(localStorage.getItem('session'));
+            const res = await callAPI('getMaps', { nopol: sess.nopol });
+            
+            if(res.status === 'success') {
+                const office = res.office.split(',').map(Number);
+                let stores = res.stores; 
+                let skippedCount = res.skipped || 0;
+                let roughRoute = []; let currentPos = {lat: office[0], long: office[1]}; let unvisited = [...stores];
+                while (unvisited.length > 0) {
+                    let nearestIdx = -1; let minDist = Infinity;
+                    for (let i = 0; i < unvisited.length; i++) {
+                        let t = unvisited[i];
+                        let d = calcDist(currentPos.lat, currentPos.long, t.lat, t.long);
+                        if (d < minDist) { minDist = d; nearestIdx = i; }
+                    }
+                    if (nearestIdx !== -1) {
+                        let nextStore = unvisited[nearestIdx]; roughRoute.push(nextStore);
+                        currentPos = {lat: nextStore.lat, long: nextStore.long}; unvisited.splice(nearestIdx, 1);
+                    } else { break; }
+                }
+                let optimizedStores = applyTwoOpt(roughRoute, office);
+                optimizedStores = ensureCounterClockwise(optimizedStores, office);
+                let prev = {lat: office[0], long: office[1]};
+                optimizedStores.forEach(t => {
+                    let d = calcDist(prev.lat, prev.long, t.lat, t.long);
+                    t.distanceFromPrev = (d * 1.3).toFixed(1); prev = t;
+                });
+                let lastStore = optimizedStores[optimizedStores.length-1];
+                let distToOffice = calcDist(lastStore.lat, lastStore.long, office[0], office[1]) * 1.3;
+                routeData = { office: office, stores: optimizedStores, returnDist: distToOffice.toFixed(1), skipped: skippedCount };
+                renderRouteList(routeData); 
+            } else { document.getElementById('routeContainer').innerHTML = `<div class="alert alert-warning">${res.message}</div>`; }
+        } catch(e) { document.getElementById('routeContainer').innerHTML = '<div class="alert alert-danger">Gagal memuat rute</div>'; }
+    }
+
+    function applyTwoOpt(route, officeCoord) {
+        let office = {lat: officeCoord[0], long: officeCoord[1]};
+        let bestRoute = [...route];
+        let improved = true; let count = 0;
+        while(improved && count < 100) {
+            improved = false; count++;
+            for (let i = 0; i < bestRoute.length - 1; i++) {
+                for (let k = i + 1; k < bestRoute.length; k++) {
+                    if (shouldSwap(bestRoute, i, k, office)) { bestRoute = reverseSegment(bestRoute, i, k); improved = true; }
+                }
+            }
+        } return bestRoute;
+    }
+    function shouldSwap(route, i, k, office) {
+        let A = (i === 0) ? office : route[i-1]; let B = route[i]; let C = route[k]; let D = (k === route.length - 1) ? office : route[k+1];
+        let d1 = calcDist(A.lat, A.long, B.lat, B.long); let d2 = calcDist(C.lat, C.long, D.lat, D.long);
+        let d3 = calcDist(A.lat, A.long, C.lat, C.long); let d4 = calcDist(B.lat, B.long, D.lat, D.long);
+        return (d3 + d4) < (d1 + d2);
+    }
+    function reverseSegment(route, i, k) {
+        let newRoute = [...route]; let left = i; let right = k;
+        while (left < right) { let temp = newRoute[left]; newRoute[left] = newRoute[right]; newRoute[right] = temp; left++; right--; }
+        return newRoute;
+    }
+    function ensureCounterClockwise(route, officeCoord) {
+        if (route.length < 3) return route;
+        let sum = 0; let path = [{lat: officeCoord[0], long: officeCoord[1]}, ...route, {lat: officeCoord[0], long: officeCoord[1]}];
+        for (let i = 0; i < path.length - 1; i++) { let cur = path[i]; let next = path[i+1]; sum += (next.long - cur.long) * (next.lat + cur.lat); }
+        if (sum > 0) return route.reverse(); return route;
+    }
+    function renderRouteList(data) {
+        const stores = data.stores;
+        let totalSelesai = 0; let html = '';
+        if (data.skipped > 0) { html += `<div class="alert alert-danger py-2 mb-3 small fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> ${data.skipped} Toko Error</div>`; }
+        let totalKm = 0; let totalMinutes = 0;
+        html += `<div class="d-flex align-items-center mb-4"><div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width:40px; height:40px; flex-shrink:0; z-index:2;">Start</div><div class="fw-bold">KANTOR IDM</div></div>`;
+        stores.forEach((toko, i) => {
+            let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); if(travelTime < 1) travelTime = 1;
+            totalKm += parseFloat(toko.distanceFromPrev); totalMinutes += (travelTime + SERVICE_TIME); 
+            let isDone = toko.sudahInput === true; if(isDone) totalSelesai++;
+            let cardClass = isDone ? "route-card border-success" : "route-card"; let bgStyle = isDone ? "background-color: #dcfce7;" : ""; 
+            let iconStatus = isDone ? '<i class="fas fa-check-circle text-success fs-5 ms-2"></i>' : ''; let btnStyle = isDone ? "background:#198754; color:white;" : ""; let badgeClass = isDone ? "bg-white text-success border border-success" : "meta-travel";
+            const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
+            html += `<div class="${cardClass}" style="position:relative; z-index:2; ${bgStyle}"><div class="route-info flex-grow-1"><div class="d-flex align-items-center"><h6 class="${isDone ? 'text-success' : ''}">${i+1}. ${toko.kode}</h6>${iconStatus}</div><div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div><div class="mt-2"><span class="route-meta-badge ${badgeClass}"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span><span class="route-meta-badge ${badgeClass}"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span></div></div><a href="${gmapsLink}" target="_blank" class="btn-navigate" style="${btnStyle}"><i class="fas fa-location-arrow"></i></a></div>`;
+        });
+        let errorText = data.skipped > 0 ? ` <span class="text-danger small">(${data.skipped} Skip)</span>` : "";
+        document.getElementById('routeTitle').innerHTML = `Progress: <span class="text-success fw-bold">${totalSelesai}</span> / ${stores.length} Toko ${errorText}`;
+        let returnTime = Math.ceil(data.returnDist / 25 * 60); totalKm += parseFloat(data.returnDist); totalMinutes += returnTime;
+        const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
+        html += `<div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"><div class="route-info"><h6>KEMBALI KE KANTOR</h6><small>KANTOR IDM</small><div class="mt-2"><span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span><span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span></div></div><a href="${officeLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a></div>`;
+        let hours = Math.floor(totalMinutes / 60); let mins = totalMinutes % 60; let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
+        html += `<div class="summary-card"><h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6><div class="row text-center"><div class="col-6 border-end border-secondary"><small class="d-block text-white-50">Total Waktu</small><span class="fw-bold fs-5">${timeString}</span></div><div class="col-6"><small class="d-block text-white-50">Total Jarak</small><span class="fw-bold fs-5">${totalKm.toFixed(1)} KM</span></div></div><div class="mt-2 text-center small text-white-50 fst-italic">*Termasuk waktu berhenti ${SERVICE_TIME} menit per toko</div></div>`;
+        document.getElementById('routeContainer').innerHTML = html;
+    }
+    function calcDist(lat1, lon1, lat2, lon2) { var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; }
+    function deg2rad(deg) { return deg * (Math.PI/180); }
+
+    function showMsg(icon, title, text) { Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#4f46e5', confirmButtonText: 'Oke', heightAuto: false }); }
 
     function hitungTotal() {
-      let t = 0;
-      document.querySelectorAll('.d-input').forEach(el => {
-        let val = (parseInt(el.value) || 0) * parseInt(el.dataset.v);
-        el.parentElement.querySelector('.subtotal').innerText = val.toLocaleString('id-ID');
-        t += val;
-      });
-      document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
+        let t = 0; 
+        document.querySelectorAll('.d-input').forEach(el => {
+            let val = parseFloat(el.value) || 0;
+            let denom = parseFloat(el.getAttribute('data-v'));
+            el.parentElement.querySelector('.subtotal').innerText = (val * denom).toLocaleString('id-ID');
+            t += (val * denom);
+        });
+        document.getElementById('totalDisplay').innerText = t.toLocaleString('id-ID');
     }
 
     function hitungTerima() {
-      let t = 0;
-      document.querySelectorAll('.t-input').forEach(el => {
-        let val = (parseInt(el.value) || 0) * parseInt(el.dataset.v);
-        el.parentElement.querySelector('.subtotal-t').innerText = val.toLocaleString('id-ID');
-        t += val;
-      });
-      document.getElementById('totalTerimaDisplay').innerText = t.toLocaleString('id-ID');
-    }
-
-    async function cariToko(btn) {
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'search', kode: document.getElementById('kodeToko').value.toUpperCase() })});
-      const data = await res.json();
-      if(data.found) {
-        document.getElementById('namaToko').value = data.nama;
-        document.getElementById('transactionArea').classList.remove('hidden');
-      } else { Swal.fire('Toko tidak ditemukan', '', 'warning'); }
-    }
-
-    async function process(btn) {
-      if(signaturePad.isEmpty()) return Swal.fire('Tanda tangan wajib!', '', 'warning');
-      const u = JSON.parse(localStorage.getItem('session'));
-      btn.disabled = true; btn.innerHTML = 'Memproses...';
-
-      const sigImg = signaturePad.toDataURL('image/jpeg', 0.15); // Kompresi
-      
-      const payload = {
-        action: 'save',
-        data: { nopol: u.nopol, petugas: u.nama, kodeToko: document.getElementById('kodeToko').value, totalUang: document.getElementById('totalDisplay').innerText.replace(/\D/g,''), isTukar: true },
-        image: sigImg,
-        filename: "struk-" + document.getElementById('kodeToko').value + ".pdf"
-      };
-
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload)});
-      const out = await res.json();
-      if(out.status === 'success') {
-        Swal.fire('Berhasil!', 'Membuka WhatsApp...', 'success').then(() => {
-          window.location.href = `https://wa.me/?text=Bukti Penukaran: ${out.fileUrl}`;
-          setTimeout(() => location.reload(), 2000);
+        let t = 0; 
+        document.querySelectorAll('.t-input').forEach(el => {
+            let val = parseFloat(el.value) || 0;
+            let denom = parseFloat(el.getAttribute('data-v'));
+            el.parentElement.querySelector('.subtotal-t').innerText = (val * denom).toLocaleString('id-ID');
+            t += (val * denom);
         });
+        document.getElementById('totalTerimaDisplay').innerText = t.toLocaleString('id-ID');
+    }
+
+    document.addEventListener('input', function(e) { 
+        if(e.target.classList.contains('d-input')) { hitungTotal(); } 
+        if(e.target.classList.contains('t-input')) { hitungTerima(); } 
+    });
+
+    async function loadTemplatesFromSheet() {
+        const select = document.getElementById('templateSelect');
+        select.innerHTML = '<option value="">Loading...</option>';
+        try {
+            const res = await callAPI('getTemplates'); 
+            if(res.status === 'success' && res.data.length > 0) {
+                templatesData = res.data; 
+                select.innerHTML = '<option value="">-- Pilih Paket (Dari Sheet) --</option>';
+                res.data.forEach((row, index) => { select.innerHTML += `<option value="${index}">${row[0]}</option>`; });
+            } else { select.innerHTML = '<option value="">Kosong</option>'; }
+        } catch(e) { console.log(e); select.innerHTML = '<option value="">Gagal Load</option>'; }
+    }
+
+    function applyTemplate() {
+        const idx = document.getElementById('templateSelect').value;
+        const inputs = document.querySelectorAll('.d-input');
+        if (idx === "") { inputs.forEach(el => el.value = ""); } 
+        else {
+            const selectedRow = templatesData[parseInt(idx)];
+            inputs.forEach((el, i) => { const qty = selectedRow[i+1]; el.value = qty > 0 ? qty : ""; });
+        }
+        hitungTotal();
+    }
+
+    async function callAPI(action, data) {
+      const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: action, ...data }) });
+      return await response.json();
+    }
+
+    async function loadDashboard() {
+        document.getElementById('dModal').innerText = "...";
+        const sess = JSON.parse(localStorage.getItem('session'));
+        try {
+           
+            const res = await callAPI('getDashboard', { nopol: sess.nopol });
+            if(res.status === 'success') {
+                document.getElementById('dModal').innerText = res.uangDibawa; 
+                document.getElementById('dKeluar').innerText = res.uangDitukar;
+                document.getElementById('dSisa').innerText = res.sisaUang;
+                document.getElementById('dToko').innerText = res.jmlToko;
+                let pct = parseFloat(res.persen.replace('%', '')) || 0; if(pct > 100) pct = 100;
+                document.getElementById('dPersen').innerText = res.persen;
+                document.getElementById('dBar').style.width = pct + "%";
+                const list = res.rincian;
+                const labels = ["100", "200", "500", "1.000", "2.000", "5.000", "10.000", "20.000"];
+                let html = "";
+                labels.forEach((lbl, idx) => { html += `<tr><td>${lbl}</td><td>${list[idx]}</td></tr>`; });
+                document.getElementById('tableRincian').innerHTML = html;
+            }
+        } catch(e) { console.log(e); }
+    }
+
+    async function doLogin(btn) {
+      const nik = document.getElementById('loginNik').value;
+      const pass = document.getElementById('loginPass').value;
+      const nopol = document.getElementById('loginNopol').value;
+
+      if(!nopol) return showMsg('warning','Pilih Nopol Dulu!','');
+
+      btn.innerHTML = 'Loading...'; btn.disabled = true;
+      try {
+        const res = await callAPI('login', { nik, pass });
+        if (res.status === 'success') {
+            res.nopol = nopol; 
+            localStorage.setItem('session', JSON.stringify(res));
+            if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
+            } else { showMainApp(res); }
+        } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
+      } catch (e) { showMsg('error','Error','Masalah Koneksi'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
+    }
+    function logout() { Swal.fire({ title: 'Keluar?', text: "Anda harus login ulang nanti.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => { if (result.isConfirmed) { localStorage.removeItem('session'); location.reload(); } }); }
+    
+    async function cariToko(btn) {
+      const kode = document.getElementById('kodeToko').value.toUpperCase();
+      if(!kode) return;
+      btn.innerHTML = '...';
+      try {
+        const res = await callAPI('search', { kode });
+        if(res.found) { 
+            document.getElementById('namaToko').value = res.nama; 
+            document.getElementById('alamatToko').value = res.alamat;
+            const myModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            myModal.show();
+        } else { showMsg('warning','Info','Toko tidak ditemukan!'); }
+      } catch(e) { showMsg('error','Error', 'Koneksi error'); }
+      btn.innerHTML = '<i class="fas fa-search"></i>';
+    }
+
+    document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
+
+    
+    async function process(btn) {
+      if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
+      if (isTukarMode) {
+          if(signaturePad.isEmpty()) return showMsg('warning','TTD Kosong','Tanda tangan wajib diisi!');
+          if(!document.getElementById('noWa').value) return showMsg('warning','WA Kosong','Isi Nomor WA!');
+      } else {
+          if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
       }
+
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses PDF...'; 
+      btn.disabled = true;
+
+      setTimeout(async () => {
+          try {
+              const sess = JSON.parse(localStorage.getItem('session'));
+              const kodeToko = document.getElementById('kodeToko').value.toUpperCase();
+              let dataSave = {
+                isTukar: isTukarMode, kodeToko: kodeToko,
+                totalUang: isTukarMode ? document.getElementById('totalDisplay').innerText.replace(/\./g,'') : "0",
+                keterangan: !isTukarMode ? document.getElementById('keterangan').value : "",
+                k100:0, k200:0, k500:0, k1000:0, k2000:0, k5000:0, k10000:0, k20000:0,
+                tTerima50: 0, tTerima100: 0,
+                jabatan: document.getElementById('jabatan').value,
+                namaTim: document.getElementById('namaTim').value,
+                petugas: document.getElementById('petugasNama').value,
+                nopol: sess.nopol 
+              };
+
+              let pdfBase64 = "";
+              let filename = "";
+              const now = new Date();
+              const options = { day: '2-digit', month: 'long', year: 'numeric' };
+              const formattedDate = `${now.toLocaleDateString('id-ID', options)} pukul ${now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}).replace('.', ':')}`;
+
+              if (isTukarMode) {
+                  const { jsPDF } = window.jspdf;
+                  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 200], compress: true });
+                  
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
+                  doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
+                  doc.setLineWidth(0.3); doc.setLineDash([1, 1], 0); doc.line(5, 19, 100, 19);
+
+                  doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+                  let y = 25; const lh = 4.5;
+                  const addRow = (label, val) => {
+                      doc.setFont("helvetica", "bold"); doc.text(label, 5, y); doc.setFont("helvetica", "normal"); doc.text(": " + val, 32, y); y += lh;
+                  };
+
+                  addRow("Tanggal", formattedDate);
+                  addRow("Toko", kodeToko + " - " + document.getElementById('namaToko').value);
+                  const alamatLines = doc.splitTextToSize(": " + document.getElementById('alamatToko').value, 65);
+                  doc.setFont("helvetica", "bold"); doc.text("Alamat", 5, y); doc.setFont("helvetica", "normal"); doc.text(alamatLines, 32, y); y += (alamatLines.length * 4);
+                  addRow("Jabatan", document.getElementById('jabatan').value + " - " + document.getElementById('namaTim').value);
+                  addRow("No WA", document.getElementById('noWa').value);
+                  addRow("Petugas", document.getElementById('petugasNama').value);
+                  addRow("Kendaraan", document.getElementById('kendaraan').value);
+                  y += 2; doc.line(5, y, 100, y); y += 5;
+
+                  doc.setFont("helvetica", "bold"); doc.setFillColor(240, 240, 240); doc.rect(5, y-3, 95, 5, 'F');
+                  doc.text("Pecahan (Tukar)", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Total", 98, y, {align:'right'}); y += 5; doc.setFont("helvetica", "normal");
+
+                  document.querySelectorAll('.d-input').forEach(el => {
+                    let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+                    if(qty > 0) {
+                        doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text((d*qty).toLocaleString(), 98, y, {align:'right'}); y += 4;
+                        if(d==100) dataSave.k100=qty; if(d==200) dataSave.k200=qty;
+                        if(d==500) dataSave.k500=qty; if(d==1000) dataSave.k1000=qty;
+                        if(d==2000) dataSave.k2000=qty; if(d==5000) dataSave.k5000=qty;
+                        if(d==10000) dataSave.k10000=qty; if(d==20000) dataSave.k20000=qty;
+                    }
+                  });
+                  y += 2; doc.line(5, y, 100, y); y += 6;
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+                  doc.text("TOTAL TUKAR: Rp " + document.getElementById('totalDisplay').innerText, 52.5, y, {align:'center'});
+
+                  y += 8;
+                  let adaTerima = false; let totalTerimaPDF = 0;
+                  
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(50,50,50);
+                  doc.text("UANG DITERIMA DARI TOKO", 52.5, y, {align: 'center'});
+                  y += 5;
+
+                  doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(0,0,0);
+                  doc.text("Pecahan", 7, y); doc.text("Qty", 40, y, {align: 'center'}); doc.text("Nominal", 98, y, {align:'right'}); 
+                  y += 4; doc.setFont("helvetica", "normal");
+
+                  document.querySelectorAll('.t-input').forEach(el => {
+                    let qty = parseInt(el.value) || 0; let d = parseInt(el.getAttribute('data-v'));
+                    if(qty > 0) {
+                        adaTerima = true; let sub = qty * d; totalTerimaPDF += sub;
+                        doc.text(d.toLocaleString(), 7, y); doc.text(qty.toString(), 40, y, {align: 'center'}); doc.text(sub.toLocaleString(), 98, y, {align:'right'}); 
+                        y += 4;
+                        if(d==50000) dataSave.tTerima50 = qty; if(d==100000) dataSave.tTerima100 = qty;
+                    }
+                  });
+
+                  if(!adaTerima) { doc.setFont("helvetica", "italic"); doc.text("- Tidak ada uang tunai diterima -", 52.5, y, {align:'center'}); y += 4;
+                  } else { doc.setLineWidth(0.1); doc.line(40, y, 100, y); y+=4; doc.setFont("helvetica", "bold"); doc.text("Total Terima: Rp " + totalTerimaPDF.toLocaleString('id-ID'), 98, y, {align:'right'}); y += 4; }
+
+                  y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
+                  doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
+                  
+                  const tinySig = getTinySignature();
+                  if(tinySig) {
+                      doc.addImage(tinySig, 'JPEG', 70, y+2, 30, 15);
+                  }
+
+                  const session = JSON.parse(localStorage.getItem('session'));
+                  if (session && session.ttdOtomatis) { doc.addImage(session.ttdOtomatis, 'PNG', 5, y+2, 30, 15);
+                  } else { doc.setFontSize(7); doc.text("(TTD Digital)", 20, y+10, {align:'center', color: '#aaaaaa'}); doc.setFontSize(8); doc.setTextColor(0,0,0); }
+                  
+                  y += 20; 
+                  doc.text("("+document.getElementById('petugasNama').value+")", 20, y, {align:'center'}); 
+                  doc.text("("+document.getElementById('namaTim').value+")", 85, y, {align:'center'});
+                  
+                  y += 10; doc.setFontSize(7); doc.setTextColor(150,150,150); doc.text("*** Simpan struk ini sebagai bukti sah ***", 52.5, y, {align:'center'});
+
+                  const dateFile = ("0" + now.getDate()).slice(-2) + ("0" + (now.getMonth()+1)).slice(-2) + now.getFullYear();
+                  filename = `struk-penukaran-${kodeToko}-${dateFile}.pdf`;
+                  pdfBase64 = doc.output('datauristring');
+              }
+
+              btn.innerHTML = 'Mengirim Data...';
+
+              const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
+              
+              if(res.status === 'success') {
+                  if (isTukarMode) {
+                      let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
+                      if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
+                      else if(noWa.startsWith('8')) noWa = '62' + noWa;
+                      
+                      const totalFormatted = document.getElementById('totalDisplay').innerText;
+                      const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
+                      const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
+
+                      btn.classList.remove('btn-success'); btn.classList.add('btn-primary'); 
+                      btn.innerHTML = '<i class="fas fa-check-circle"></i> TERSIMPAN!';
+
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Berhasil!',
+                          text: 'Klik tombol hijau untuk kirim WA. Aplikasi akan refresh otomatis setelahnya.',
+                          showCancelButton: true,
+                          confirmButtonColor: '#25D366',
+                          confirmButtonText: '<i class="fab fa-whatsapp"></i> Buka WhatsApp',
+                          cancelButtonText: 'Tutup',
+                          reverseButtons: true
+                      }).then((result) => {
+                          if (result.isConfirmed) {
+                              window.location.href = waLink;
+                              setTimeout(() => { location.reload(); }, 2000);
+                          } else {
+                              location.reload();
+                          }
+                      });
+
+                  } else {
+                      Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
+                  }
+              } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+          } catch(e) { 
+              console.error(e);
+              showMsg('error', 'Jaringan Error', 'Koneksi bermasalah atau file terlalu besar.'); 
+              btn.disabled = false; btn.innerHTML = 'ULANGI'; 
+          }
+      }, 100);
     }
-
-    async function switchPage(p) {
-      const u = JSON.parse(localStorage.getItem('session'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      document.getElementById('formPage').classList.add('hidden');
-      document.getElementById('dashPage').classList.add('hidden');
-      document.getElementById('mapsPage').classList.add('hidden');
-
-      if(p === 'home') {
-        document.getElementById('formPage').classList.remove('hidden');
-        document.querySelector('button[onclick*="home"]').classList.add('active');
-      } else if(p === 'dash') {
-        document.getElementById('dashPage').classList.remove('hidden');
-        document.querySelector('button[onclick*="dash"]').classList.add('active');
-        loadDash(u.nopol);
-      } else if(p === 'maps') {
-        document.getElementById('mapsPage').classList.remove('hidden');
-        document.querySelector('button[onclick*="maps"]').classList.add('active');
-        loadRoute(u.nopol);
-      }
-    }
-
-    async function loadDash(nopol) {
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboard', nopol: nopol })});
-      const json = await res.json();
-      document.getElementById('dashContainer').innerHTML = `<div class="p-3 bg-light rounded-4">Sisa Uang: <b>${json.sisaUang}</b><br>Toko: <b>${json.jmlToko}</b></div>`;
-    }
-
-    async function loadRoute(nopol) {
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getMaps', nopol: nopol })});
-      const json = await res.json();
-      const cont = document.getElementById('routeList');
-      cont.innerHTML = "";
-      json.stores.forEach((tk, i) => {
-        let doneClass = tk.sudahInput ? "route-done" : "";
-        cont.innerHTML += `<div class="list-group-item ${doneClass} d-flex justify-content-between"><span><b>${i+1}.</b> ${tk.kode}</span><a href="https://www.google.com/maps/dir/?api=1&destination=${tk.lat},${tk.long}" target="_blank" class="btn btn-sm btn-primary rounded-circle"><i class="fas fa-location-arrow"></i></a></div>`;
-      });
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
   </script>
 </body>
 </html>
