@@ -16,55 +16,22 @@
   <style>
     :root { --primary: #4f46e5; --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
     body { background: #f0f2f5; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-    
     .app-card { background: white; width: 100%; max-width: 500px; min-height: 100vh; min-height: 100dvh; box-shadow: 0 0 20px rgba(0,0,0,0.05); position: relative; display: flex; flex-direction: column; }
-    
     .hidden { display: none !important; }
-    
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
-    .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
-    .input-readonly { background-color: #f1f5f9; border-color: transparent; color: #64748b; font-weight: 600; }
-
     .denom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #fff; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
     .denom-badge { background: #3b82f6; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; min-width: 70px; text-align: center; }
     .denom-total { font-weight: bold; color: #333; font-size: 14px; text-align: right; flex: 1; }
-    
     canvas#signature-pad { border: 2px dashed #cbd5e1; border-radius: 15px; width: 100%; height: 180px; background: #fafafa; touch-action: none; display: block; }
-
     .dash-section { background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #f0f0f0; }
-    .dash-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-    .dash-val-lg { font-size: 28px; font-weight: 700; color: #1e293b; }
-    .dash-val-md { font-size: 20px; font-weight: 600; color: #334155; }
-    .progress-stacked { height: 12px; border-radius: 6px; background: #e2e8f0; overflow: hidden; margin-top: 10px; }
-    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #667eea); width: 0%; transition: width 0.8s ease-in-out; }
-    .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
-    .rincian-table tr { background: #f8fafc; }
-    .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-    .rincian-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-weight: 600; color: #475569; }
-    .rincian-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-weight: bold; color: #0f172a; }
-
-    .route-card { background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; position: relative; z-index: 2; }
-    .route-card:active { transform: scale(0.98); }
-    .route-info h6 { margin: 0; font-weight: 700; color: #1e293b; }
-    .route-info small { color: #64748b; font-size: 11px; display: block; margin-top: 4px; }
-    
-    .route-meta-badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-    .meta-travel { background: #eff6ff; color: #2563eb; }
-    
-    .btn-navigate { background: #eff6ff; color: var(--primary); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; text-decoration: none; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    
-    .summary-card { background: #1e293b; color: white; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    
-    .page-scroll { flex: 1; overflow-y: auto; padding-bottom: 100px; background: #fcfcfc; position: relative; }
     .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; background: white; padding: 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.08); display: flex; justify-content: space-around; z-index: 2000; border-top-left-radius: 25px; border-top-right-radius: 25px; }
     .nav-item { border: none; background: none; color: #94a3b8; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.3s; }
-    .nav-item i { font-size: 20px; }
     .nav-item.active { color: var(--primary); }
-    .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 20px !important; }
+    .rincian-table { width: 100%; font-size: 14px; border-collapse: separate; border-spacing: 0 8px; }
+    .rincian-table td { padding: 12px 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    .rincian-table td:last-child { text-align: right; font-weight: bold; color: #0f172a; }
   </style>
 </head>
 <body>
@@ -73,7 +40,7 @@
     
     <div id="loginPage" class="login-container">
       <div class="text-center pb-4">
-        <i class="fas fa-coins coin-logo"></i>
+        <i class="fas fa-coins text-warning" style="font-size: 80px;"></i>
         <h2 class="fw-bold mt-3 mb-1">Tukar Koin</h2>
         <p class="text-muted">Sistem Operasional Digital</p>
       </div>
@@ -150,25 +117,19 @@
                     
                     <div class="bg-warning bg-opacity-10 p-3 rounded-4 mb-4 border border-warning">
                         <span class="d-block small fw-bold text-dark mb-2 ps-1"><i class="fas fa-money-bill-wave me-1"></i> UANG DITERIMA (DARI TOKO)</span>
-                        
                         <div class="d-flex justify-content-between px-2 mb-1 text-muted opacity-75" style="font-size:11px; font-weight:700;">
-                            <div style="width:70px; text-align:center;">DENOM</div>
-                            <div style="width:80px; text-align:center;">QTY</div>
-                            <div style="flex:1; text-align:right;">NOMINAL</div>
+                            <div style="width:70px; text-align:center;">DENOM</div><div style="width:80px; text-align:center;">QTY</div><div style="flex:1; text-align:right;">NOMINAL</div>
                         </div>
-
                         <div class="denom-row mb-2">
                             <div class="denom-badge bg-secondary">50.000</div>
-                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="0">
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="50000" placeholder="0" oninput="hitungTerima()">
                             <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
                         </div>
-
                         <div class="denom-row mb-0">
                             <div class="denom-badge bg-secondary">100.000</div>
-                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="0">
+                            <input type="number" class="input-modern t-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="100000" placeholder="0" oninput="hitungTerima()">
                             <div class="denom-total">Rp <span class="subtotal-t">0</span></div>
                         </div>
-                        
                         <div class="mt-2 text-end fw-bold text-dark" style="font-size:14px;">Total Terima: Rp <span id="totalTerimaDisplay">0</span></div>
                     </div>
 
@@ -178,9 +139,7 @@
                     </div>
 
                     <span class="d-block text-center small fw-bold text-muted mb-2">Tanda Tangan (<span id="ttdLabel">CIF</span>)</span>
-                    
                     <canvas id="signature-pad"></canvas>
-                    
                     <button class="btn btn-light btn-sm w-100 text-danger fw-bold border mt-2" onclick="signaturePad.clear()">Hapus Tanda Tangan</button>
                 </div>
 
@@ -200,6 +159,7 @@
         
         <div id="dashPage" class="page-scroll hidden">
             <div class="p-4">
+                <h5 class="text-center fw-bold mb-3">Dashboard <span id="dashNopol" class="text-primary"></span></h5>
                 <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
                     <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
                     <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
@@ -232,7 +192,6 @@
                     <h6 class="fw-bold m-0" id="routeTitle">Memuat Data...</h6>
                     <button class="btn btn-sm btn-light border" onclick="initRouteList()"><i class="fas fa-sync"></i></button>
                 </div>
-                
                 <div id="routeContainer">
                     <div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Sedang menyusun rute...</div>
                 </div>
@@ -265,7 +224,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-
+    
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
     const SERVICE_TIME = 1; 
@@ -275,6 +234,41 @@
     let isTukarMode = true; 
     let templatesData = []; 
     let routeData = null; 
+
+    
+    window.onload = () => {
+        const sess = localStorage.getItem('session');
+        if(sess) { 
+            
+            const u = JSON.parse(sess); 
+            showMainApp(u); 
+            
+            loadNopolBackground();
+        } else {
+            
+            loadNopolBackground();
+        }
+
+        const container = document.getElementById('denomContainer');
+        if(container.innerHTML === "") { 
+            denoms.forEach(d => {
+                container.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty"><div class="denom-total">Rp <span class="subtotal">0</span></div></div>`;
+            });
+        }
+        
+        loadTemplatesFromSheet();
+        initSignaturePad(); 
+        window.addEventListener("resize", resizeCanvas);
+    };
+
+    async function loadNopolBackground() {
+        try {
+            const res = await callAPI('getNopolList');
+            const sel = document.getElementById('loginNopol');
+            sel.innerHTML = '<option value="">-- Pilih Nopol --</option>';
+            res.forEach(n => { sel.innerHTML += `<option value="${n}">${n}</option>`; });
+        } catch(e) {}
+    }
 
     function initSignaturePad() {
         const canvas = document.getElementById('signature-pad');
@@ -303,67 +297,14 @@
         }
     }
 
-   
-    function getTinySignature() {
-        const canvas = document.getElementById('signature-pad');
-        if (signaturePad.isEmpty()) return null;
-        return canvas.toDataURL('image/jpeg', 0.25); 
-    }
-
-    window.onload = async () => {
-        
-        try {
-            const res = await fetch(API_URL + "?action=getNopolList");
-            const list = await res.json();
-            const sel = document.getElementById('loginNopol');
-            sel.innerHTML = '<option value="">-- Pilih Nopol --</option>';
-            list.forEach(n => { sel.innerHTML += `<option value="${n}">${n}</option>`; });
-        } catch(e) { console.log('Gagal load nopol', e); }
-
-        const sess = localStorage.getItem('session');
-        if(sess) { const u = JSON.parse(sess); showMainApp(u); }
-
-        const container = document.getElementById('denomContainer');
-        if(container.innerHTML === "") { 
-            denoms.forEach(d => {
-                container.innerHTML += `<div class="denom-row"><div class="denom-badge">${d.toLocaleString()}</div><input type="number" class="input-modern d-input py-1" style="width:80px; border:none; background:transparent; font-weight:bold;" data-v="${d}" placeholder="Qty"><div class="denom-total">Rp <span class="subtotal">0</span></div></div>`;
-            });
-        }
-        
-        loadTemplatesFromSheet();
-        initSignaturePad(); 
-        window.addEventListener("resize", resizeCanvas);
-    };
-
     function showMainApp(user) {
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden'); 
         document.getElementById('bottomNav').classList.remove('hidden');
         document.getElementById('petugasNama').value = user.nama;
         document.getElementById('badgeNama').innerText = user.nama;
-        
         document.getElementById('kendaraan').value = user.nopol;
         document.getElementById('badgeKendaraan').innerText = user.nopol;
-    }
-
-    
-    async function doLogin(btn) {
-      const nik = document.getElementById('loginNik').value;
-      const pass = document.getElementById('loginPass').value;
-      const nopol = document.getElementById('loginNopol').value;
-      
-      if(!nopol) return Swal.fire('Pilih Nopol Dulu!', '', 'warning');
-
-      btn.innerHTML = 'Loading...'; btn.disabled = true;
-      try {
-        const res = await callAPI('login', { nik, pass });
-        if (res.status === 'success') {
-            res.nopol = nopol; // Inject nopol
-            localStorage.setItem('session', JSON.stringify(res));
-            if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
-            } else { showMainApp(res); }
-        } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
-      } catch (e) { showMsg('error','Error','Masalah Koneksi'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
     }
 
     function setMode(isYes) {
@@ -418,10 +359,8 @@
         if(routeData) { renderRouteList(routeData); return; }
         document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menghitung jarak terdekat...</div>';
         try {
-            
             const sess = JSON.parse(localStorage.getItem('session'));
-            const res = await callAPI('getMaps', { nopol: sess.nopol });
-            
+            const res = await callAPI('getMaps', { nopol: sess.nopol }); 
             if(res.status === 'success') {
                 const office = res.office.split(',').map(Number);
                 let stores = res.stores; 
@@ -493,19 +432,13 @@
         stores.forEach((toko, i) => {
             let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); if(travelTime < 1) travelTime = 1;
             totalKm += parseFloat(toko.distanceFromPrev); totalMinutes += (travelTime + SERVICE_TIME); 
-            let isDone = toko.sudahInput === true; if(isDone) totalSelesai++;
+            
+            let isDone = false; 
             let cardClass = isDone ? "route-card border-success" : "route-card"; let bgStyle = isDone ? "background-color: #dcfce7;" : ""; 
             let iconStatus = isDone ? '<i class="fas fa-check-circle text-success fs-5 ms-2"></i>' : ''; let btnStyle = isDone ? "background:#198754; color:white;" : ""; let badgeClass = isDone ? "bg-white text-success border border-success" : "meta-travel";
             const gmapsLink = `https://www.google.com/maps/dir/?api=1&destination=${toko.lat},${toko.long}&travelmode=driving`;
             html += `<div class="${cardClass}" style="position:relative; z-index:2; ${bgStyle}"><div class="route-info flex-grow-1"><div class="d-flex align-items-center"><h6 class="${isDone ? 'text-success' : ''}">${i+1}. ${toko.kode}</h6>${iconStatus}</div><div style="font-size:13px; color:#334155; margin-bottom:2px;">${toko.nama}</div><div class="mt-2"><span class="route-meta-badge ${badgeClass}"><i class="fas fa-road me-1"></i> ${toko.distanceFromPrev} km</span><span class="route-meta-badge ${badgeClass}"><i class="fas fa-car-side me-1"></i> ${travelTime} mnt</span></div></div><a href="${gmapsLink}" target="_blank" class="btn-navigate" style="${btnStyle}"><i class="fas fa-location-arrow"></i></a></div>`;
         });
-        let errorText = data.skipped > 0 ? ` <span class="text-danger small">(${data.skipped} Skip)</span>` : "";
-        document.getElementById('routeTitle').innerHTML = `Progress: <span class="text-success fw-bold">${totalSelesai}</span> / ${stores.length} Toko ${errorText}`;
-        let returnTime = Math.ceil(data.returnDist / 25 * 60); totalKm += parseFloat(data.returnDist); totalMinutes += returnTime;
-        const officeLink = `https://www.google.com/maps/dir/?api=1&destination=${data.office[0]},${data.office[1]}&travelmode=driving`;
-        html += `<div class="route-card" style="position:relative; z-index:1; border-left: 5px solid #64748b;"><div class="route-info"><h6>KEMBALI KE KANTOR</h6><small>KANTOR IDM</small><div class="mt-2"><span class="route-meta-badge meta-travel"><i class="fas fa-road me-1"></i> ${data.returnDist} km</span><span class="route-meta-badge meta-travel"><i class="fas fa-car-side me-1"></i> ${returnTime} mnt</span></div></div><a href="${officeLink}" target="_blank" class="btn-navigate"><i class="fas fa-location-arrow"></i></a></div>`;
-        let hours = Math.floor(totalMinutes / 60); let mins = totalMinutes % 60; let timeString = hours > 0 ? `${hours} Jam ${mins} Mnt` : `${mins} Menit`;
-        html += `<div class="summary-card"><h6 class="fw-bold mb-3 border-bottom pb-2 border-secondary">RINGKASAN PERJALANAN</h6><div class="row text-center"><div class="col-6 border-end border-secondary"><small class="d-block text-white-50">Total Waktu</small><span class="fw-bold fs-5">${timeString}</span></div><div class="col-6"><small class="d-block text-white-50">Total Jarak</small><span class="fw-bold fs-5">${totalKm.toFixed(1)} KM</span></div></div><div class="mt-2 text-center small text-white-50 fst-italic">*Termasuk waktu berhenti ${SERVICE_TIME} menit per toko</div></div>`;
         document.getElementById('routeContainer').innerHTML = html;
     }
     function calcDist(lat1, lon1, lat2, lon2) { var R = 6371; var dLat = deg2rad(lat2-lat1); var dLon = deg2rad(lon2-lon1); var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2); var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c; }
@@ -570,10 +503,11 @@
     }
 
     async function loadDashboard() {
-        document.getElementById('dModal').innerText = "...";
         const sess = JSON.parse(localStorage.getItem('session'));
+        document.getElementById('dModal').innerText = "...";
+        document.getElementById('dashNopol').innerText = sess.nopol;
         try {
-           
+            
             const res = await callAPI('getDashboard', { nopol: sess.nopol });
             if(res.status === 'success') {
                 document.getElementById('dModal').innerText = res.uangDibawa; 
@@ -597,13 +531,13 @@
       const pass = document.getElementById('loginPass').value;
       const nopol = document.getElementById('loginNopol').value;
 
-      if(!nopol) return showMsg('warning','Pilih Nopol Dulu!','');
+      if(!nopol) return showMsg('warning','Data Kosong','Pilih Nomor Polisi Dulu!');
 
       btn.innerHTML = 'Loading...'; btn.disabled = true;
       try {
         const res = await callAPI('login', { nik, pass });
         if (res.status === 'success') {
-            res.nopol = nopol; 
+            res.nopol = nopol;
             localStorage.setItem('session', JSON.stringify(res));
             if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
             } else { showMainApp(res); }
@@ -628,8 +562,6 @@
       btn.innerHTML = '<i class="fas fa-search"></i>';
     }
 
-    document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
-
     
     async function process(btn) {
       if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
@@ -640,9 +572,16 @@
           if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
       }
 
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses PDF...'; 
+      
       btn.disabled = true;
+      let detik = 30;
+      const intervalTimer = setInterval(() => {
+          detik--;
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i> Memproses (${detik}s)...`;
+          if (detik <= 0) { clearInterval(intervalTimer); btn.innerHTML = 'Masih memproses...'; }
+      }, 1000);
 
+      
       setTimeout(async () => {
           try {
               const sess = JSON.parse(localStorage.getItem('session'));
@@ -668,6 +607,7 @@
               if (isTukarMode) {
                   const { jsPDF } = window.jspdf;
                   const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [105, 200], compress: true });
+                  
                   
                   doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text("INDOMARET", 52.5, 10, {align: 'center'});
                   doc.setFontSize(10); doc.text("BUKTI PENUKARAN KOIN", 52.5, 16, {align: 'center'});
@@ -733,9 +673,10 @@
                   y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
                   doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
                   
-                  const tinySig = getTinySignature();
-                  if(tinySig) {
-                      doc.addImage(tinySig, 'JPEG', 70, y+2, 30, 15);
+                  
+                  if(!signaturePad.isEmpty()) {
+                      const sigImg = signaturePad.toDataURL('image/jpeg', 0.2); 
+                      doc.addImage(sigImg, 'JPEG', 70, y+2, 30, 15);
                   }
 
                   const session = JSON.parse(localStorage.getItem('session'));
@@ -753,10 +694,10 @@
                   pdfBase64 = doc.output('datauristring');
               }
 
-              btn.innerHTML = 'Mengirim Data...';
-
               const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
               
+              clearInterval(intervalTimer); 
+
               if(res.status === 'success') {
                   if (isTukarMode) {
                       let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
@@ -791,9 +732,13 @@
                   } else {
                       Swal.fire({ icon: 'success', title: 'Laporan Terkirim', text: 'Keterangan berhasil disimpan.', confirmButtonColor: '#4f46e5' }).then(() => { location.reload(); });
                   }
-              } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
+              } else { 
+                  showMsg('error', 'Gagal Simpan', res.message); 
+                  btn.disabled = false; btn.innerHTML = 'ULANGI'; 
+              }
           } catch(e) { 
               console.error(e);
+              clearInterval(intervalTimer);
               showMsg('error', 'Jaringan Error', 'Koneksi bermasalah atau file terlalu besar.'); 
               btn.disabled = false; btn.innerHTML = 'ULANGI'; 
           }
