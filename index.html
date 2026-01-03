@@ -22,8 +22,6 @@
     .hidden { display: none !important; }
     
     .login-container { display: flex; flex-direction: column; justify-content: center; height: 100vh; padding: 30px; background: white; }
-    .coin-logo { color: #fbbf24; font-size: 80px; animation: bounce 2s infinite; }
-    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
     .input-modern { border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; width: 100%; font-size: 14px; transition: all 0.3s; background: #f8fafc; }
     .input-modern:focus { border-color: var(--primary); outline: none; background: #fff; }
@@ -73,7 +71,7 @@
     
     <div id="loginPage" class="login-container hidden">
       <div class="text-center pb-4">
-        <i class="fas fa-coins coin-logo"></i>
+        <i class="fas fa-coins text-warning" style="font-size: 80px;"></i>
         <h2 class="fw-bold mt-3 mb-1">Tukar Koin</h2>
         <p class="text-muted">Sistem Operasional Digital</p>
       </div>
@@ -82,7 +80,7 @@
         <div class="mb-4"><input type="password" id="loginPass" class="input-modern" placeholder="Password (Angka)" maxlength="6" inputmode="numeric" pattern="[0-9]*"></div>
         
         <div class="mb-4">
-           <label class="small fw-bold text-muted mb-1">Pilih Kendaraan:</label>
+           <label class="small fw-bold text-muted mb-1">Pilih Nomor Polisi:</label>
            <select id="loginNopol" class="input-modern form-select">
               <option value="">-- Memuat Nopol... --</option>
            </select>
@@ -200,7 +198,7 @@
         
         <div id="dashPage" class="page-scroll hidden">
             <div class="p-4">
-                <div class="text-center mb-3 fw-bold small text-muted">Dashboard: <span id="dashNopol"></span></div>
+                <h5 class="text-center fw-bold mb-3">Dashboard <span id="dashNopol" class="text-primary"></span></h5>
                 <div class="dash-section bg-primary text-white position-relative overflow-hidden border-0">
                     <div style="position:absolute; top:-20px; right:-20px; font-size:100px; opacity:0.1;"><i class="fas fa-wallet"></i></div>
                     <div class="dash-label text-white-50">UANG YANG DIBAWA (MODAL)</div>
@@ -231,7 +229,7 @@
             <div class="p-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-bold m-0" id="routeTitle">Memuat Data...</h6>
-                    <button class="btn btn-sm btn-light border" onclick="initRouteList()"><i class="fas fa-sync"></i></button>
+                    <button class="btn btn-sm btn-light border" onclick="routeData = null; initRouteList()"><i class="fas fa-sync"></i></button>
                 </div>
                 
                 <div id="routeContainer">
@@ -266,7 +264,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    
+
     const API_URL = "https://script.google.com/macros/s/AKfycbytFulvf5L89Xnz43OZNIOXR00j4Td6T6fyrp8F8NTCcrWIGNfUqlE-qIGFszzm7rjXxQ/exec"; 
     
     const SERVICE_TIME = 1; 
@@ -277,46 +275,17 @@
     let templatesData = []; 
     let routeData = null; 
 
-    function initSignaturePad() {
-        const canvas = document.getElementById('signature-pad');
-        const newCanvas = canvas.cloneNode(true);
-        canvas.parentNode.replaceChild(newCanvas, canvas);
-        
-        
-        signaturePad = new SignaturePad(newCanvas, { 
-            backgroundColor: 'rgb(255, 255, 255)', 
-            penColor: 'rgb(0, 0, 0)',
-            minWidth: 2, 
-            maxWidth: 4 
-        });
-        
-        newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
-        newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
-    }
 
-    function resizeCanvas() {
-        const canvas = document.getElementById('signature-pad');
-        if (canvas && canvas.offsetParent !== null) { 
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            if(signaturePad) signaturePad.clear(); 
-        }
-    }
-
-    
     window.onload = () => {
         const sess = localStorage.getItem('session');
-        
         if(sess) { 
             
             const u = JSON.parse(sess); 
             showMainApp(u); 
             
-            loadNopolList(); 
+            loadNopolList();
         } else {
-           
+            
             document.getElementById('loginPage').classList.remove('hidden');
             loadNopolList();
         }
@@ -344,7 +313,34 @@
                 if(n) sel.innerHTML += `<option value="${n}">${n}</option>`; 
             });
         } catch(e) {
-            sel.innerHTML = '<option value="">Gagal Memuat (Cek Sinyal)</option>';
+            sel.innerHTML = '<option value="">Gagal Memuat</option>';
+        }
+    }
+
+    function initSignaturePad() {
+        const canvas = document.getElementById('signature-pad');
+        const newCanvas = canvas.cloneNode(true);
+        canvas.parentNode.replaceChild(newCanvas, canvas);
+        
+        signaturePad = new SignaturePad(newCanvas, { 
+            backgroundColor: 'rgb(255, 255, 255)', 
+            penColor: 'rgb(0, 0, 0)',
+            minWidth: 2, 
+            maxWidth: 4 
+        });
+        
+        newCanvas.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
+        newCanvas.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
+    }
+
+    function resizeCanvas() {
+        const canvas = document.getElementById('signature-pad');
+        if (canvas && canvas.offsetParent !== null) { 
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            if(signaturePad) signaturePad.clear(); 
         }
     }
 
@@ -356,26 +352,6 @@
         document.getElementById('badgeNama').innerText = user.nama;
         document.getElementById('kendaraan').value = user.nopol;
         document.getElementById('badgeKendaraan').innerText = user.nopol;
-    }
-
-    
-    async function doLogin(btn) {
-      const nik = document.getElementById('loginNik').value;
-      const pass = document.getElementById('loginPass').value;
-      const nopol = document.getElementById('loginNopol').value;
-
-      if(!nopol) return showMsg('warning','Pilih Mobil!','Silakan pilih nomor polisi kendaraan.');
-
-      btn.innerHTML = 'Loading...'; btn.disabled = true;
-      try {
-        const res = await callAPI('login', { nik, pass });
-        if (res.status === 'success') {
-            res.nopol = nopol; 
-            localStorage.setItem('session', JSON.stringify(res));
-            if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
-            } else { showMainApp(res); }
-        } else { showMsg('error','Gagal','Login Gagal! Periksa NIK/Password'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
-      } catch (e) { showMsg('error','Error','Masalah Koneksi'); btn.innerHTML = 'MASUK APLIKASI'; btn.disabled = false; }
     }
 
     function setMode(isYes) {
@@ -426,12 +402,10 @@
         }
     }
 
-    
     async function initRouteList() {
         if(routeData) { renderRouteList(routeData); return; }
         document.getElementById('routeContainer').innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><br>Menghitung jarak terdekat...</div>';
         try {
-            
             const sess = JSON.parse(localStorage.getItem('session'));
             const res = await callAPI('getMaps', { nopol: sess.nopol });
             
@@ -506,6 +480,7 @@
         stores.forEach((toko, i) => {
             let travelTime = Math.ceil(toko.distanceFromPrev / 25 * 60); if(travelTime < 1) travelTime = 1;
             totalKm += parseFloat(toko.distanceFromPrev); totalMinutes += (travelTime + SERVICE_TIME); 
+          
             let isDone = toko.sudahInput === true; if(isDone) totalSelesai++;
             let cardClass = isDone ? "route-card border-success" : "route-card"; let bgStyle = isDone ? "background-color: #dcfce7;" : ""; 
             let iconStatus = isDone ? '<i class="fas fa-check-circle text-success fs-5 ms-2"></i>' : ''; let btnStyle = isDone ? "background:#198754; color:white;" : ""; let badgeClass = isDone ? "bg-white text-success border border-success" : "meta-travel";
@@ -585,9 +560,8 @@
     async function loadDashboard() {
         document.getElementById('dModal').innerText = "...";
         const sess = JSON.parse(localStorage.getItem('session'));
-        document.getElementById('dashNopol').innerText = sess.nopol; 
+        document.getElementById('dashNopol').innerText = sess.nopol;
         try {
-            
             const res = await callAPI('getDashboard', { nopol: sess.nopol });
             if(res.status === 'success') {
                 document.getElementById('dModal').innerText = res.uangDibawa; 
@@ -609,16 +583,15 @@
     async function doLogin(btn) {
       const nik = document.getElementById('loginNik').value;
       const pass = document.getElementById('loginPass').value;
-      
       const nopol = document.getElementById('loginNopol').value;
 
-      if(!nopol) return showMsg('warning','Pilih Nopol Dulu','');
+      if(!nopol) return showMsg('warning','Pilih Nopol','');
 
       btn.innerHTML = 'Loading...'; btn.disabled = true;
       try {
         const res = await callAPI('login', { nik, pass });
         if (res.status === 'success') {
-            res.nopol = nopol; 
+            res.nopol = nopol;
             localStorage.setItem('session', JSON.stringify(res));
             if(res.warning) { Swal.fire({ icon: 'warning', title: 'Perhatian!', text: res.warning, confirmButtonColor: '#d33', confirmButtonText: 'Mengerti' }).then(() => { showMainApp(res); });
             } else { showMainApp(res); }
@@ -645,7 +618,7 @@
 
     document.getElementById('jabatan').addEventListener('change', function() { document.getElementById('ttdLabel').innerText = this.value; });
 
-   
+    
     async function process(btn) {
       if(!document.getElementById('namaToko').value) return showMsg('warning','Data Kosong','Pilih Toko dulu!');
       if (isTukarMode) {
@@ -655,16 +628,14 @@
           if(!document.getElementById('keterangan').value) return showMsg('warning','Keterangan Kosong','Isi alasan kenapa tidak tukar!');
       }
 
-      
       btn.disabled = true;
       let detik = 30;
       const intervalTimer = setInterval(() => {
           detik--;
           btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i> Proses (${detik}s)...`;
-          if(detik <= 0) { clearInterval(intervalTimer); btn.innerHTML = 'Masih memproses...'; }
+          if (detik <= 0) { clearInterval(intervalTimer); btn.innerHTML = 'Masih memproses...'; }
       }, 1000);
 
-      
       setTimeout(async () => {
           try {
               const sess = JSON.parse(localStorage.getItem('session'));
@@ -678,7 +649,7 @@
                 jabatan: document.getElementById('jabatan').value,
                 namaTim: document.getElementById('namaTim').value,
                 petugas: document.getElementById('petugasNama').value,
-                nopol: sess.nopol 
+                nopol: sess.nopol
               };
 
               let pdfBase64 = "";
@@ -755,9 +726,8 @@
                   y += 10; doc.setFontSize(8); doc.setTextColor(0,0,0);
                   doc.text("Petugas", 20, y, {align:'center'}); doc.text("Tim toko", 85, y, {align:'center'});
                   
-                  
                   if(!signaturePad.isEmpty()) {
-                      const sigImg = signaturePad.toDataURL('image/jpeg', 0.15); 
+                      const sigImg = signaturePad.toDataURL('image/jpeg', 0.25);
                       doc.addImage(sigImg, 'JPEG', 70, y+2, 30, 15);
                   }
 
@@ -776,20 +746,19 @@
                   pdfBase64 = doc.output('datauristring');
               }
 
-              btn.innerHTML = 'Mengirim Data...';
-
               const res = await callAPI('save', { data: dataSave, image: pdfBase64, filename: filename });
               
               clearInterval(intervalTimer); 
 
               if(res.status === 'success') {
+                  routeData = null; 
                   if (isTukarMode) {
                       let noWa = document.getElementById('noWa').value.replace(/\D/g,'');
                       if(noWa.startsWith('0')) noWa = '62' + noWa.slice(1);
                       else if(noWa.startsWith('8')) noWa = '62' + noWa;
                       
                       const totalFormatted = document.getElementById('totalDisplay').innerText;
-                      const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}\n\nNote : Jika ada selisih penukaran konfirmasikan ke Cashbox 081357348851\nTerima kasih`;
+                      const msg = `Struk Penukaran Toko ${kodeToko}\nTanggal: ${formattedDate}\nTotal: Rp ${totalFormatted}\n\nDownload PDF:\n${res.fileUrl}`;
                       const waLink = `https://wa.me/${noWa}?text=${encodeURIComponent(msg)}`;
 
                       btn.classList.remove('btn-success'); btn.classList.add('btn-primary'); 
@@ -819,7 +788,7 @@
               } else { showMsg('error', 'Gagal Simpan', res.message); btn.disabled = false; btn.innerHTML = 'ULANGI'; }
           } catch(e) { 
               console.error(e);
-              clearInterval(intervalTimer); 
+              clearInterval(intervalTimer);
               showMsg('error', 'Jaringan Error', 'Koneksi bermasalah atau file terlalu besar.'); 
               btn.disabled = false; btn.innerHTML = 'ULANGI'; 
           }
